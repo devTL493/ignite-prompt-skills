@@ -3,10 +3,16 @@ import { Card } from "@/components/ui/card";
 import { Brain, Target, Zap } from "lucide-react";
 
 interface HeroProps {
-  onStartQuiz: () => void;
+  onStartQuiz: (name: string) => void;
+  hasExistingProgress?: boolean;
+  onViewDashboard?: () => void;
 }
 
-export function Hero({ onStartQuiz }: HeroProps) {
+export function Hero({ onStartQuiz, hasExistingProgress, onViewDashboard }: HeroProps) {
+  const handleStartClick = () => {
+    // For demo purposes, using a default name. In a real app, you'd collect this from user input
+    onStartQuiz("Demo Benutzer");
+  };
   return (
     <div className="min-h-screen bg-gradient-primary relative overflow-hidden">
       {/* Background decoration */}
@@ -67,7 +73,7 @@ export function Hero({ onStartQuiz }: HeroProps) {
           {/* CTA */}
           <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
             <Button 
-              onClick={onStartQuiz}
+              onClick={handleStartClick}
               size="lg"
               className="bg-gradient-accent hover:bg-gradient-accent/90 text-accent-foreground font-semibold px-12 py-6 text-lg shadow-button hover:shadow-glow transition-all duration-300 hover:scale-105 animate-glow"
             >

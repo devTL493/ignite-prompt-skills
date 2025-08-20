@@ -6,126 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Check, X, Lightbulb, Target, RefreshCw } from "lucide-react";
 import { AIScoring } from "./AIScoring";
-
-interface Scenario {
-  id: number;
-  title: string;
-  description: string;
-  context: string;
-  goal: string;
-  difficulty: "Anfänger" | "Mittelstufe" | "Fortgeschritten";
-  category: string;
-  idealPrompt: string;
-  hints: string[];
-  evaluation: {
-    criteria: string[];
-    sampleGoodPrompt: string;
-    commonMistakes: string[];
-  };
-}
-
-const scenarios: Scenario[] = [
-  {
-    id: 1,
-    title: "Kundenservice E-Mail Antwort",
-    description: "Generieren Sie eine professionelle Antwort auf eine verärgerte Kundenbeschwerde",
-    context: "Ein Kunde erhielt ein beschädigtes Produkt und verlangt eine vollständige Rückerstattung. Er wartet bereits 3 Tage auf eine Antwort und droht mit negativen Bewertungen.",
-    goal: "Erstellen Sie einen Prompt, der eine empathische, lösungsorientierte Antwort generiert, die den Kunden behält",
-    difficulty: "Anfänger",
-    category: "Kundenservice",
-    idealPrompt: "Schreiben Sie eine professionelle, empathische Kundenservice-E-Mail als Antwort auf einen verärgerten Kunden, der ein beschädigtes Produkt erhalten hat. Der Ton sollte entschuldigend aber lösungsorientiert sein. Beinhalten Sie: 1) Aufrichtige Entschuldigung, 2) Sofortiger Aktionsplan (Ersatz/Rückerstattung), 3) Zeitplan für die Lösung, 4) Zusätzliche Kulanzgeste. Halten Sie es prägnant aber herzlich.",
-    hints: [
-      "Spezifizieren Sie den Ton (empathisch, professionell)",
-      "Nennen Sie spezifische Elemente, die anzusprechen sind",
-      "Erwähnen Sie den emotionalen Zustand des Kunden",
-      "Bitten Sie um einen lösungsorientierten Ansatz"
-    ],
-    evaluation: {
-      criteria: [
-        "Spezifiziert empathischen Ton",
-        "Erwähnt die spezifische Situation (beschädigtes Produkt)",
-        "Fordert lösungsorientierten Ansatz",
-        "Klare Struktur oder Elemente zum Einbeziehen"
-      ],
-      sampleGoodPrompt: "Schreiben Sie eine professionelle, empathische Kundenservice-E-Mail als Antwort auf einen verärgerten Kunden...",
-      commonMistakes: [
-        "Zu vage - spezifiziert keinen Ton",
-        "Erwähnt den Kontext nicht",
-        "Keine klare Struktur angefordert"
-      ]
-    }
-  },
-  {
-    id: 2,
-    title: "Produkteinführungsstrategie",
-    description: "Erstellen Sie eine umfassende Go-to-Market-Strategie für ein neues SaaS-Produkt",
-    context: "Ihr Startup führt ein KI-gestütztes Projektmanagement-Tool für Remote-Teams ein. Das Budget ist begrenzt, und Sie müssen sich auf die effektivsten Kanäle konzentrieren.",
-    goal: "Generieren Sie eine detaillierte Einführungsstrategie mit spezifischen Taktiken, Zeitplänen und Budgetverteilung",
-    difficulty: "Fortgeschritten",
-    category: "Marketing",
-    idealPrompt: "Erstellen Sie eine umfassende 90-Tage Go-to-Market-Strategie für die Einführung einer KI-gestützten Projektmanagement-SaaS für Remote-Teams. Beinhalten Sie: 1) Zielgruppenanalyse, 2) Positionierungsstrategie, 3) Marketing-Kanäle mit Budgetverteilung, 4) Content-Marketing-Plan, 5) Partnerschaftsmöglichkeiten, 6) Erfolgskennzahlen und KPIs. Nehmen Sie ein Marketing-Budget von 50.000€ an und konzentrieren Sie sich auf kosteneffektive Kanäle für Startups.",
-    hints: [
-      "Spezifizieren Sie den Zeitrahmen (90 Tage)",
-      "Berücksichtigen Sie Budgetbeschränkungen",
-      "Fordern Sie spezifische Liefergegenstände an",
-      "Erwähnen Sie Details zur Zielgruppe",
-      "Bitten Sie um messbare Ergebnisse"
-    ],
-    evaluation: {
-      criteria: [
-        "Spezifiziert Zeitrahmen",
-        "Berücksichtigt Budgetbeschränkungen",
-        "Fordert spezifische Strategiekomponenten",
-        "Erwähnt Zielgruppe",
-        "Bittet um messbare Kennzahlen"
-      ],
-      sampleGoodPrompt: "Erstellen Sie eine umfassende 90-Tage Go-to-Market-Strategie für die Einführung einer KI-gestützten Projektmanagement-SaaS...",
-      commonMistakes: [
-        "Zu breit - kein spezifischer Zeitrahmen",
-        "Erwähnt keine Budgetbeschränkungen",
-        "Fehlen spezifische Liefergegenstände",
-        "Keine Details zur Zielgruppe"
-      ]
-    }
-  },
-  {
-    id: 3,
-    title: "Code-Review-Prozess",
-    description: "Entwerfen Sie eine Code-Review-Checkliste für ein Entwicklungsteam",
-    context: "Ihr Team von 8 Entwicklern hatte Probleme mit der Code-Qualität und Deployment-Fehlern. Reviews sind inkonsistent und übersehen manchmal wichtige Aspekte.",
-    goal: "Erstellen Sie einen systematischen Code-Review-Prozess, der Fehler früh erkennt und die Code-Qualität aufrechterhält",
-    difficulty: "Mittelstufe",
-    category: "Entwicklung",
-    idealPrompt: "Erstellen Sie eine umfassende Code-Review-Checkliste für ein Team von 8 Entwicklern zur Verbesserung der Code-Qualität und Reduzierung von Deployment-Fehlern. Beinhalten Sie: 1) Automatisierte Vorab-Checks, 2) Manuelle Review-Kriterien (Funktionalität, Sicherheit, Performance), 3) Review-Zuweisungsprozess, 4) Genehmigungsworkflow, 5) Dokumentationsanforderungen. Fokussieren Sie sich auf praktische, umsetzbare Punkte, die sofort implementiert werden können.",
-    hints: [
-      "Spezifizieren Sie den Teamgrößen-Kontext",
-      "Beinhalten Sie sowohl automatisierte als auch manuelle Elemente",
-      "Fokussieren Sie sich auf praktische Umsetzung",
-      "Adressieren Sie die spezifischen genannten Probleme"
-    ],
-    evaluation: {
-      criteria: [
-        "Erwähnt Team-Kontext/Größe",
-        "Beinhaltet sowohl automatisierte als auch manuelle Checks",
-        "Adressiert spezifische Probleme (Fehler, Konsistenz)",
-        "Fordert umsetzbare, implementierbare Punkte",
-        "Deckt den vollständigen Review-Prozess ab"
-      ],
-      sampleGoodPrompt: "Erstellen Sie eine umfassende Code-Review-Checkliste für ein Team von 8 Entwicklern zur Verbesserung der Code-Qualität...",
-      commonMistakes: [
-        "Generische Checkliste ohne Kontext",
-        "Adressiert nicht die spezifischen Probleme",
-        "Zu theoretisch, nicht umsetzbar"
-      ]
-    }
-  }
-];
+import { Scenario } from "@/types";
 
 interface QuizInterfaceProps {
   onBack: () => void;
+  scenarios: Scenario[];
 }
 
-export function QuizInterface({ onBack }: QuizInterfaceProps) {
+export function QuizInterface({ onBack, scenarios }: QuizInterfaceProps) {
   const [currentScenario, setCurrentScenario] = useState(0);
   const [userPrompt, setUserPrompt] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
