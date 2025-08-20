@@ -75,7 +75,7 @@ export function Hero({ onStartQuiz, hasExistingProgress, onViewDashboard }: Hero
             <Button 
               onClick={handleStartClick}
               size="lg"
-              className="bg-gradient-accent hover:bg-gradient-accent/90 text-accent-foreground font-semibold px-12 py-6 text-lg shadow-button hover:shadow-glow transition-all duration-300 hover:scale-105 animate-glow"
+              className="bg-gradient-accent hover:bg-gradient-accent/90 text-accent-foreground font-semibold px-12 py-6 text-lg shadow-button hover:shadow-glow transition-all duration-300 hover:scale-105"
             >
               Starten Sie Ihre Reise
             </Button>
