@@ -61,7 +61,7 @@ export function Hero({
             </Card>
 
             <Card className="bg-gradient-card border-0 shadow-card hover:shadow-glow transition-all duration-300 hover:scale-105">
-              <div className="p-6 text-center bg-red-800">
+              <div className="p-6 text-center bg-red-700">
                 <div className="w-12 h-12 bg-gradient-accent rounded-lg flex items-center justify-center mx-auto mb-4 animate-float" style={{
                 animationDelay: '0.4s'
               }}>
