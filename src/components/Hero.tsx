@@ -79,9 +79,7 @@ export function Hero({ onStartQuiz, hasExistingProgress, onViewDashboard }: Hero
             >
               Starten Sie Ihre Reise
             </Button>
-            <p className="text-sm text-foreground/60 mt-4">
-              Keine Anmeldung erforderlich • Kostenlos testen
-            </p>
+            
           </div>
         </div>
       </div>
