@@ -3,6 +3,78 @@ import { Scenario } from "@/types";
 export const governmentScenarios: Scenario[] = [
   {
     id: 1,
+    title: "Bürgergeld-Sanktionen erklären",
+    description: "Kommunizieren Sie Sanktionsmaßnahmen beim Bürgergeld verständlich und rechtssicher",
+    context: "Ein Bürgergeld-Empfänger hat wiederholt Termine nicht wahrgenommen und Bewerbungsauflagen nicht erfüllt. Eine Sanktion von 30% für 3 Monate muss verhängt werden. Der Betroffene hat zwei minderjährige Kinder und Deutsch ist nicht seine Muttersprache. Die Kommunikation muss rechtssicher sein und Hilfsangebote enthalten.",
+    goal: "Verfassen Sie eine klare, verständliche Sanktionsmitteilung, die rechtliche Vorgaben erfüllt und Unterstützung anbietet",
+    difficulty: "Anfänger",
+    category: "Rechtskommunikation",
+    department: "Jobcenter",
+    idealPrompt: "Verfasse eine Sanktionsmitteilung für Bürgergeld-Empfänger (30% Kürzung, 3 Monate) wegen Terminversäumnissen und fehlender Bewerbungen. Zielgruppe: Nicht-Muttersprachler mit Kindern. Struktur: 1) Verständliche Einleitung, 2) Klare Auflistung der Pflichtverletzungen mit Daten, 3) Erläuterung der Rechtsgrundlage (§31a SGB II), 4) Präzise Sanktionsdetails (Betrag, Zeitraum), 5) Schutz der Kinder (Sozialgeld bleibt), 6) Beratungsangebote und Hilfsmöglichkeiten, 7) Informationen zur Aufhebung der Sanktion, 8) Widerspruchsbelehrung. Ton: Klar aber unterstützend, einfache Sprache verwenden.",
+    hints: [
+      "Verwenden Sie einfache, klare Sprache",
+      "Erklären Sie die Rechtsgrundlage verständlich",
+      "Erwähnen Sie den Kinderschutz explizit",
+      "Bieten Sie konkrete Hilfe an",
+      "Strukturieren Sie die Informationen logisch"
+    ],
+    evaluation: {
+      criteria: [
+        "Einfache, verständliche Sprache verwendet",
+        "Rechtsgrundlage klar erklärt",
+        "Kinderschutz erwähnt",
+        "Konkrete Hilfsangebote gemacht",
+        "Widerspruchsrecht erklärt",
+        "Strukturierte Darstellung"
+      ],
+      sampleGoodPrompt: "Verfasse eine Sanktionsmitteilung für Bürgergeld-Empfänger wegen Terminversäumnissen...",
+      commonMistakes: [
+        "Zu komplizierte Rechtssprache",
+        "Kinderschutz nicht erwähnt",
+        "Keine Hilfsangebote",
+        "Unstrukturierte Information"
+      ],
+      keyPhrases: ["einfache Sprache", "Rechtsgrundlage", "Kinderschutz", "Hilfsangebote", "Widerspruch", "verständlich"]
+    }
+  },
+  {
+    id: 2,
+    title: "Inklusive Stellenausschreibung erstellen",
+    description: "Entwickeln Sie eine barrierefreie, inklusive Stellenausschreibung für das öffentliche Jobportal",
+    context: "Die Arbeitsagentur möchte eine Stellenausschreibung für eine IT-Stelle bei einem kommunalen Arbeitgeber veröffentlichen. Die Ausschreibung soll explizit Menschen mit Behinderungen ansprechen, geschlechtsneutral formuliert sein und keine unbewussten Vorurteile (Bias) enthalten. Sie soll auch für Menschen mit kognitiven Einschränkungen verständlich sein.",
+    goal: "Erstellen Sie eine vollständig inklusive Stellenausschreibung, die alle Zielgruppen anspricht und rechtliche Vorgaben erfüllt",
+    difficulty: "Anfänger",
+    category: "Inklusive Kommunikation",
+    department: "Arbeitgeberservice",
+    idealPrompt: "Erstelle eine inklusive Stellenausschreibung für eine IT-Support-Position (Vollzeit, TV-L E9) bei der Stadtverwaltung. Anforderungen: 1) Geschlechtsneutrale Sprache (* oder : verwenden), 2) Explizite Ermutigung für Menschen mit Behinderungen, 3) Einfache, klare Sprache (B1-Niveau), 4) Bias-freie Formulierungen (keine Alters-, Herkunfts- oder Persönlichkeitsklischees), 5) Barrierefreie Bewerbungsmöglichkeiten erwähnen, 6) Flexible Arbeitsmodelle hervorheben, 7) Unterstützungsangebote am Arbeitsplatz erwähnen, 8) Klare Struktur: Aufgaben, Anforderungen, Angebote, Bewerbung. Vermeiden: 'Belastbarkeit', 'jung und dynamisch', 'Muttersprache Deutsch'.",
+    hints: [
+      "Verwenden Sie geschlechtsneutrale Sprache",
+      "Ermutigen Sie Menschen mit Behinderungen explizit",
+      "Verwenden Sie einfache, klare Sprache",
+      "Vermeiden Sie stereotype Formulierungen",
+      "Erwähnen Sie Unterstützungsangebote"
+    ],
+    evaluation: {
+      criteria: [
+        "Geschlechtsneutrale Sprache verwendet",
+        "Menschen mit Behinderungen explizit angesprochen",
+        "Einfache Sprache (B1-Niveau)",
+        "Keine Bias-Formulierungen",
+        "Barrierefreie Bewerbung erwähnt",
+        "Unterstützungsangebote genannt"
+      ],
+      sampleGoodPrompt: "Erstelle eine inklusive Stellenausschreibung für eine IT-Support-Position...",
+      commonMistakes: [
+        "Nicht geschlechtsneutral",
+        "Menschen mit Behinderungen nicht erwähnt",
+        "Zu komplizierte Sprache",
+        "Stereotype Formulierungen verwendet"
+      ],
+      keyPhrases: ["geschlechtsneutral", "Menschen mit Behinderungen", "einfache Sprache", "barrierefrei", "Unterstützung", "inklusiv"]
+    }
+  },
+  {
+    id: 3,
     title: "Arbeitslosengeld-Ablehnungsbescheid kommunizieren",
     description: "Erstellen Sie eine empathische Kommunikation für die Ablehnung von Arbeitslosengeld",
     context: "Ein Bürger hat Arbeitslosengeld beantragt, aber die Voraussetzungen sind nicht erfüllt (unzureichende Beitragszeiten). Der Antragsteller ist alleinerziehend mit zwei Kindern und in einer schwierigen finanziellen Lage. Die Ablehnung muss rechtlich korrekt, aber menschlich kommuniziert werden.",
@@ -37,7 +109,7 @@ export const governmentScenarios: Scenario[] = [
     }
   },
   {
-    id: 2,
+    id: 4,
     title: "Digitale Jobvermittlungsstrategie entwickeln",
     description: "Konzipieren Sie eine digitale Strategie zur Verbesserung der Jobvermittlung für Langzeitarbeitslose",
     context: "Die Arbeitsagentur möchte ihre Jobvermittlung digitalisieren, um Langzeitarbeitslose besser zu erreichen. Viele der Zielgruppe haben begrenzte Digitalkompetenzen, sind über 50 Jahre alt oder haben Migrationshintergrund. Das Budget beträgt 500.000€ für 18 Monate. Ziel ist es, die Vermittlungsquote um 25% zu steigern.",
@@ -73,7 +145,7 @@ export const governmentScenarios: Scenario[] = [
     }
   },
   {
-    id: 3,
+    id: 5,
     title: "KI-Bewerbungscheck für Jobsuchende",
     description: "Entwickeln Sie KI-gestützte Bewerbungsoptimierung für das Jobcenter",
     context: "Das Jobcenter möchte ein KI-System einführen, das Bewerbungsunterlagen von Arbeitssuchenden automatisch analysiert und Verbesserungsvorschläge macht. Das System soll datenschutzkonform arbeiten, verschiedene Branchen berücksichtigen und auch für Menschen mit Behinderungen zugänglich sein. 15.000 Bewerbungen pro Monat sollen verarbeitet werden.",
@@ -106,78 +178,6 @@ export const governmentScenarios: Scenario[] = [
         "Ethische Aspekte ignoriert"
       ],
       keyPhrases: ["DSGVO", "barrierefrei", "branchenspezifisch", "ethisch", "transparent", "Integration", "mehrsprachig"]
-    }
-  },
-  {
-    id: 4,
-    title: "Bürgergeld-Sanktionen erklären",
-    description: "Kommunizieren Sie Sanktionsmaßnahmen beim Bürgergeld verständlich und rechtssicher",
-    context: "Ein Bürgergeld-Empfänger hat wiederholt Termine nicht wahrgenommen und Bewerbungsauflagen nicht erfüllt. Eine Sanktion von 30% für 3 Monate muss verhängt werden. Der Betroffene hat zwei minderjährige Kinder und Deutsch ist nicht seine Muttersprache. Die Kommunikation muss rechtssicher sein und Hilfsangebote enthalten.",
-    goal: "Verfassen Sie eine klare, verständliche Sanktionsmitteilung, die rechtliche Vorgaben erfüllt und Unterstützung anbietet",
-    difficulty: "Mittelstufe",
-    category: "Rechtskommunikation",
-    department: "Jobcenter",
-    idealPrompt: "Verfasse eine Sanktionsmitteilung für Bürgergeld-Empfänger (30% Kürzung, 3 Monate) wegen Terminversäumnissen und fehlender Bewerbungen. Zielgruppe: Nicht-Muttersprachler mit Kindern. Struktur: 1) Verständliche Einleitung, 2) Klare Auflistung der Pflichtverletzungen mit Daten, 3) Erläuterung der Rechtsgrundlage (§31a SGB II), 4) Präzise Sanktionsdetails (Betrag, Zeitraum), 5) Schutz der Kinder (Sozialgeld bleibt), 6) Beratungsangebote und Hilfsmöglichkeiten, 7) Informationen zur Aufhebung der Sanktion, 8) Widerspruchsbelehrung. Ton: Klar aber unterstützend, einfache Sprache verwenden.",
-    hints: [
-      "Verwenden Sie einfache, klare Sprache",
-      "Erklären Sie die Rechtsgrundlage verständlich",
-      "Erwähnen Sie den Kinderschutz explizit",
-      "Bieten Sie konkrete Hilfe an",
-      "Strukturieren Sie die Informationen logisch"
-    ],
-    evaluation: {
-      criteria: [
-        "Einfache, verständliche Sprache verwendet",
-        "Rechtsgrundlage klar erklärt",
-        "Kinderschutz erwähnt",
-        "Konkrete Hilfsangebote gemacht",
-        "Widerspruchsrecht erklärt",
-        "Strukturierte Darstellung"
-      ],
-      sampleGoodPrompt: "Verfasse eine Sanktionsmitteilung für Bürgergeld-Empfänger wegen Terminversäumnissen...",
-      commonMistakes: [
-        "Zu komplizierte Rechtssprache",
-        "Kinderschutz nicht erwähnt",
-        "Keine Hilfsangebote",
-        "Unstrukturierte Information"
-      ],
-      keyPhrases: ["einfache Sprache", "Rechtsgrundlage", "Kinderschutz", "Hilfsangebote", "Widerspruch", "verständlich"]
-    }
-  },
-  {
-    id: 5,
-    title: "Inklusive Stellenausschreibung erstellen",
-    description: "Entwickeln Sie eine barrierefreie, inklusive Stellenausschreibung für das öffentliche Jobportal",
-    context: "Die Arbeitsagentur möchte eine Stellenausschreibung für eine IT-Stelle bei einem kommunalen Arbeitgeber veröffentlichen. Die Ausschreibung soll explizit Menschen mit Behinderungen ansprechen, geschlechtsneutral formuliert sein und keine unbewussten Vorurteile (Bias) enthalten. Sie soll auch für Menschen mit kognitiven Einschränkungen verständlich sein.",
-    goal: "Erstellen Sie eine vollständig inklusive Stellenausschreibung, die alle Zielgruppen anspricht und rechtliche Vorgaben erfüllt",
-    difficulty: "Anfänger",
-    category: "Inklusive Kommunikation",
-    department: "Arbeitgeberservice",
-    idealPrompt: "Erstelle eine inklusive Stellenausschreibung für eine IT-Support-Position (Vollzeit, TV-L E9) bei der Stadtverwaltung. Anforderungen: 1) Geschlechtsneutrale Sprache (* oder : verwenden), 2) Explizite Ermutigung für Menschen mit Behinderungen, 3) Einfache, klare Sprache (B1-Niveau), 4) Bias-freie Formulierungen (keine Alters-, Herkunfts- oder Persönlichkeitsklischees), 5) Barrierefreie Bewerbungsmöglichkeiten erwähnen, 6) Flexible Arbeitsmodelle hervorheben, 7) Unterstützungsangebote am Arbeitsplatz erwähnen, 8) Klare Struktur: Aufgaben, Anforderungen, Angebote, Bewerbung. Vermeiden: 'Belastbarkeit', 'jung und dynamisch', 'Muttersprache Deutsch'.",
-    hints: [
-      "Verwenden Sie geschlechtsneutrale Sprache",
-      "Ermutigen Sie Menschen mit Behinderungen explizit",
-      "Verwenden Sie einfache, klare Sprache",
-      "Vermeiden Sie stereotype Formulierungen",
-      "Erwähnen Sie Unterstützungsangebote"
-    ],
-    evaluation: {
-      criteria: [
-        "Geschlechtsneutrale Sprache verwendet",
-        "Menschen mit Behinderungen explizit angesprochen",
-        "Einfache Sprache (B1-Niveau)",
-        "Keine Bias-Formulierungen",
-        "Barrierefreie Bewerbung erwähnt",
-        "Unterstützungsangebote genannt"
-      ],
-      sampleGoodPrompt: "Erstelle eine inklusive Stellenausschreibung für eine IT-Support-Position...",
-      commonMistakes: [
-        "Nicht geschlechtsneutral",
-        "Menschen mit Behinderungen nicht erwähnt",
-        "Zu komplizierte Sprache",
-        "Stereotype Formulierungen verwendet"
-      ],
-      keyPhrases: ["geschlechtsneutral", "Menschen mit Behinderungen", "einfache Sprache", "barrierefrei", "Unterstützung", "inklusiv"]
     }
   }
 ];
