@@ -4,15 +4,12 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, RefreshCw, Brain, TrendingUp, AlertCircle } from "lucide-react";
+import { PromptComparator } from "@/utils/promptComparison";
+import { Scenario } from "@/types";
 
 interface AIScoringProps {
   prompt: string;
-  scenario: {
-    title: string;
-    context: string;
-    goal: string;
-    idealPrompt: string;
-  };
+  scenario: Scenario;
   onScoreReceived: (score: number, feedback: string, suggestions: string[]) => void;
   hasRefinementLeft: boolean;
 }
@@ -29,38 +26,43 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Simulate AI scoring logic
-    let calculatedScore = 50; // Base score
+    // Use new comparison-based scoring
+    const comparison = PromptComparator.compareWithIdeal(prompt, scenario);
+    
+    // Base score calculation with ideal prompt comparison
+    let calculatedScore = 40; // Lower base score
     const lowerPrompt = prompt.toLowerCase();
     
-    // Check for key elements
-    if (lowerPrompt.includes("tone") || lowerPrompt.includes("professional") || lowerPrompt.includes("empathetic")) {
-      calculatedScore += 15;
-    }
+    // Similarity to ideal prompt is the primary factor
+    calculatedScore += Math.round(comparison.similarity * 0.4); // Up to 40 points for similarity
     
-    if (lowerPrompt.includes("specific") || lowerPrompt.includes("include") || lowerPrompt.includes("structure")) {
-      calculatedScore += 15;
-    }
+    // Check for key elements from the scenario
+    const keyPhrases = scenario.evaluation.keyPhrases || [];
+    const foundKeyPhrases = keyPhrases.filter(phrase => 
+      lowerPrompt.includes(phrase.toLowerCase())
+    );
+    calculatedScore += Math.min(20, foundKeyPhrases.length * 4); // Up to 20 points for key phrases
     
-    if (lowerPrompt.includes("context") || lowerPrompt.includes(scenario.title.toLowerCase().split(" ")[0])) {
+    // Structure bonus
+    if (lowerPrompt.includes("1)") || lowerPrompt.includes("-") || lowerPrompt.includes("struktur")) {
       calculatedScore += 10;
     }
     
-    if (prompt.length > 100) {
-      calculatedScore += 10;
+    // Length and detail bonus
+    if (prompt.length > 150) {
+      calculatedScore += 8;
     }
     
-    if (lowerPrompt.includes("1)") || lowerPrompt.includes("-") || lowerPrompt.includes("•")) {
-      calculatedScore += 10;
+    // Domain-specific elements
+    if (lowerPrompt.includes("rechtsgrundlage") || lowerPrompt.includes("dsgvo") || lowerPrompt.includes("barrierefrei")) {
+      calculatedScore += 12;
     }
     
-    // Add randomness for realism
-    calculatedScore += Math.floor(Math.random() * 20) - 10;
     calculatedScore = Math.max(0, Math.min(100, calculatedScore));
     
-    // Generate feedback
-    const generatedFeedback = generateFeedback(calculatedScore, prompt, scenario);
-    const generatedSuggestions = generateSuggestions(calculatedScore, prompt);
+    // Generate feedback and suggestions based on comparison
+    const generatedFeedback = generateComparisonBasedFeedback(calculatedScore, comparison, scenario);
+    const generatedSuggestions = PromptComparator.generateIdealPromptBasedSuggestions(prompt, scenario);
     
     setScore(calculatedScore);
     setFeedback(generatedFeedback);
@@ -70,45 +72,23 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
     onScoreReceived(calculatedScore, generatedFeedback, generatedSuggestions);
   };
 
-  const generateFeedback = (score: number, prompt: string, scenario: any): string => {
+  const generateComparisonBasedFeedback = (score: number, comparison: any, scenario: Scenario): string => {
+    const similarityText = comparison.similarity > 70 ? "sehr nah am idealen Ansatz" :
+                          comparison.similarity > 50 ? "auf einem guten Weg" :
+                          comparison.similarity > 30 ? "grundlegend richtig, aber ausbaufähig" :
+                          "deutlich vom optimalen Ansatz entfernt";
+
     if (score >= 80) {
-      return "Ausgezeichneter Prompt! Sie haben die meisten Schlüsselelemente für dieses Szenario eingefügt. Ihr Prompt ist spezifisch, gut strukturiert und behandelt den Kontext angemessen.";
+      return `Ausgezeichnet! Ihr Prompt ist ${similarityText} und berücksichtigt die wichtigsten Anforderungen für "${scenario.title}". Die Struktur und Spezifität sind sehr gut.`;
     } else if (score >= 60) {
-      return "Gute Grundlage! Ihr Prompt deckt einige wichtige Aspekte ab, aber es gibt Verbesserungspotenzial bei Spezifität und Struktur.";
+      return `Gute Basis! Ihr Prompt ist ${similarityText}. Mit einigen gezielten Ergänzungen können Sie noch näher an den idealen Prompt heranreichen.`;
     } else if (score >= 40) {
-      return "Ihr Prompt hat Potenzial, braucht aber mehr Details. Berücksichtigen Sie, spezifischer über das gewünschte Ausgabeformat zu sein und mehr Kontext einzubeziehen.";
+      return `Ihr Prompt ist ${similarityText}, aber es fehlen wichtige Elemente. Schauen Sie sich die Verbesserungsvorschläge an, um näher an den Golden Shot zu kommen.`;
     } else {
-      return "Dieser Prompt benötigt erhebliche Verbesserungen. Konzentrieren Sie sich darauf, spezifischer zu sein, klaren Kontext bereitzustellen und Ihre Anfrage strukturierter zu gestalten.";
+      return `Ihr Prompt ist ${similarityText}. Orientieren Sie sich stärker am Szenario-Kontext und den spezifischen Anforderungen für "${scenario.title}".`;
     }
   };
 
-  const generateSuggestions = (score: number, prompt: string): string[] => {
-    const suggestions = [];
-    const lowerPrompt = prompt.toLowerCase();
-    
-    if (!lowerPrompt.includes("ton") && !lowerPrompt.includes("professionell")) {
-      suggestions.push("Spezifizieren Sie den gewünschten Ton (z.B. professionell, empathisch, formal)");
-    }
-    
-    if (!lowerPrompt.includes("beinhalten") && !lowerPrompt.includes("struktur")) {
-      suggestions.push("Geben Sie eine klare Struktur oder Liste der einzubeziehenden Elemente an");
-    }
-    
-    if (prompt.length < 50) {
-      suggestions.push("Fügen Sie mehr Kontext und spezifische Details zu Ihrem Prompt hinzu");
-    }
-    
-    if (!lowerPrompt.includes("1)") && !lowerPrompt.includes("-") && !lowerPrompt.includes("•")) {
-      suggestions.push("Erwägen Sie die Verwendung nummerierter Punkte oder Aufzählungszeichen für Klarheit");
-    }
-    
-    if (score < 60) {
-      suggestions.push("Referenzieren Sie den spezifischen Szenario-Kontext in Ihrem Prompt");
-      suggestions.push("Seien Sie expliziter über das erwartete Ausgabeformat");
-    }
-    
-    return suggestions.slice(0, 3); // Limit to 3 suggestions
-  };
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-success";
