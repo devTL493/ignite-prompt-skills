@@ -13,7 +13,7 @@ interface Scenario {
   description: string;
   context: string;
   goal: string;
-  difficulty: "Beginner" | "Intermediate" | "Advanced";
+  difficulty: "Anfänger" | "Mittelstufe" | "Fortgeschritten";
   category: string;
   idealPrompt: string;
   hints: string[];
@@ -27,95 +27,95 @@ interface Scenario {
 const scenarios: Scenario[] = [
   {
     id: 1,
-    title: "Customer Support Email Response",
-    description: "Generate a professional response to an angry customer complaint",
-    context: "A customer received a damaged product and is demanding a full refund. They've been waiting 3 days for a response and are threatening to leave negative reviews.",
-    goal: "Create a prompt that generates an empathetic, solution-focused response that retains the customer",
-    difficulty: "Beginner",
-    category: "Customer Service",
-    idealPrompt: "Write a professional, empathetic customer service email responding to an angry customer who received a damaged product. The tone should be apologetic but solution-focused. Include: 1) Sincere apology, 2) Immediate action plan (replacement/refund), 3) Timeline for resolution, 4) Additional gesture of goodwill. Keep it concise but warm.",
+    title: "Kundenservice E-Mail Antwort",
+    description: "Generieren Sie eine professionelle Antwort auf eine verärgerte Kundenbeschwerde",
+    context: "Ein Kunde erhielt ein beschädigtes Produkt und verlangt eine vollständige Rückerstattung. Er wartet bereits 3 Tage auf eine Antwort und droht mit negativen Bewertungen.",
+    goal: "Erstellen Sie einen Prompt, der eine empathische, lösungsorientierte Antwort generiert, die den Kunden behält",
+    difficulty: "Anfänger",
+    category: "Kundenservice",
+    idealPrompt: "Schreiben Sie eine professionelle, empathische Kundenservice-E-Mail als Antwort auf einen verärgerten Kunden, der ein beschädigtes Produkt erhalten hat. Der Ton sollte entschuldigend aber lösungsorientiert sein. Beinhalten Sie: 1) Aufrichtige Entschuldigung, 2) Sofortiger Aktionsplan (Ersatz/Rückerstattung), 3) Zeitplan für die Lösung, 4) Zusätzliche Kulanzgeste. Halten Sie es prägnant aber herzlich.",
     hints: [
-      "Specify the tone (empathetic, professional)",
-      "Include specific elements to address",
-      "Mention the customer's emotional state",
-      "Ask for a solution-focused approach"
+      "Spezifizieren Sie den Ton (empathisch, professionell)",
+      "Nennen Sie spezifische Elemente, die anzusprechen sind",
+      "Erwähnen Sie den emotionalen Zustand des Kunden",
+      "Bitten Sie um einen lösungsorientierten Ansatz"
     ],
     evaluation: {
       criteria: [
-        "Specifies empathetic tone",
-        "Mentions the specific situation (damaged product)",
-        "Requests solution-focused approach",
-        "Clear structure or elements to include"
+        "Spezifiziert empathischen Ton",
+        "Erwähnt die spezifische Situation (beschädigtes Produkt)",
+        "Fordert lösungsorientierten Ansatz",
+        "Klare Struktur oder Elemente zum Einbeziehen"
       ],
-      sampleGoodPrompt: "Write a professional, empathetic customer service email responding to an angry customer who received a damaged product...",
+      sampleGoodPrompt: "Schreiben Sie eine professionelle, empathische Kundenservice-E-Mail als Antwort auf einen verärgerten Kunden...",
       commonMistakes: [
-        "Too vague - doesn't specify tone",
-        "Doesn't mention the context",
-        "No clear structure requested"
+        "Zu vage - spezifiziert keinen Ton",
+        "Erwähnt den Kontext nicht",
+        "Keine klare Struktur angefordert"
       ]
     }
   },
   {
     id: 2,
-    title: "Product Launch Strategy",
-    description: "Create a comprehensive go-to-market strategy for a new SaaS product",
-    context: "Your startup is launching an AI-powered project management tool targeting remote teams. Budget is limited, and you need to focus on the most effective channels.",
-    goal: "Generate a detailed launch strategy with specific tactics, timelines, and budget allocation",
-    difficulty: "Advanced",
+    title: "Produkteinführungsstrategie",
+    description: "Erstellen Sie eine umfassende Go-to-Market-Strategie für ein neues SaaS-Produkt",
+    context: "Ihr Startup führt ein KI-gestütztes Projektmanagement-Tool für Remote-Teams ein. Das Budget ist begrenzt, und Sie müssen sich auf die effektivsten Kanäle konzentrieren.",
+    goal: "Generieren Sie eine detaillierte Einführungsstrategie mit spezifischen Taktiken, Zeitplänen und Budgetverteilung",
+    difficulty: "Fortgeschritten",
     category: "Marketing",
-    idealPrompt: "Create a comprehensive 90-day go-to-market strategy for launching an AI-powered project management SaaS targeting remote teams. Include: 1) Target audience analysis, 2) Positioning strategy, 3) Marketing channels with budget allocation, 4) Content marketing plan, 5) Partnership opportunities, 6) Success metrics and KPIs. Assume a $50K marketing budget and focus on cost-effective channels for startups.",
+    idealPrompt: "Erstellen Sie eine umfassende 90-Tage Go-to-Market-Strategie für die Einführung einer KI-gestützten Projektmanagement-SaaS für Remote-Teams. Beinhalten Sie: 1) Zielgruppenanalyse, 2) Positionierungsstrategie, 3) Marketing-Kanäle mit Budgetverteilung, 4) Content-Marketing-Plan, 5) Partnerschaftsmöglichkeiten, 6) Erfolgskennzahlen und KPIs. Nehmen Sie ein Marketing-Budget von 50.000€ an und konzentrieren Sie sich auf kosteneffektive Kanäle für Startups.",
     hints: [
-      "Specify the time frame (90 days)",
-      "Include budget constraints",
-      "Request specific deliverables",
-      "Mention target audience details",
-      "Ask for measurable outcomes"
+      "Spezifizieren Sie den Zeitrahmen (90 Tage)",
+      "Berücksichtigen Sie Budgetbeschränkungen",
+      "Fordern Sie spezifische Liefergegenstände an",
+      "Erwähnen Sie Details zur Zielgruppe",
+      "Bitten Sie um messbare Ergebnisse"
     ],
     evaluation: {
       criteria: [
-        "Specifies time frame",
-        "Includes budget constraints",
-        "Requests specific strategy components",
-        "Mentions target audience",
-        "Asks for measurable metrics"
+        "Spezifiziert Zeitrahmen",
+        "Berücksichtigt Budgetbeschränkungen",
+        "Fordert spezifische Strategiekomponenten",
+        "Erwähnt Zielgruppe",
+        "Bittet um messbare Kennzahlen"
       ],
-      sampleGoodPrompt: "Create a comprehensive 90-day go-to-market strategy for launching an AI-powered project management SaaS...",
+      sampleGoodPrompt: "Erstellen Sie eine umfassende 90-Tage Go-to-Market-Strategie für die Einführung einer KI-gestützten Projektmanagement-SaaS...",
       commonMistakes: [
-        "Too broad - no specific timeframe",
-        "Doesn't mention budget constraints",
-        "Lacks specific deliverables",
-        "No target audience details"
+        "Zu breit - kein spezifischer Zeitrahmen",
+        "Erwähnt keine Budgetbeschränkungen",
+        "Fehlen spezifische Liefergegenstände",
+        "Keine Details zur Zielgruppe"
       ]
     }
   },
   {
     id: 3,
-    title: "Code Review Process",
-    description: "Design a code review checklist for a development team",
-    context: "Your team of 8 developers has been having issues with code quality and deployment bugs. Reviews are inconsistent and sometimes skip important aspects.",
-    goal: "Create a systematic code review process that catches bugs early and maintains code quality",
-    difficulty: "Intermediate",
-    category: "Development",
-    idealPrompt: "Create a comprehensive code review checklist for a team of 8 developers to improve code quality and reduce deployment bugs. Include: 1) Pre-review automated checks, 2) Manual review criteria (functionality, security, performance), 3) Review assignment process, 4) Approval workflow, 5) Documentation requirements. Focus on practical, actionable items that can be implemented immediately.",
+    title: "Code-Review-Prozess",
+    description: "Entwerfen Sie eine Code-Review-Checkliste für ein Entwicklungsteam",
+    context: "Ihr Team von 8 Entwicklern hatte Probleme mit der Code-Qualität und Deployment-Fehlern. Reviews sind inkonsistent und übersehen manchmal wichtige Aspekte.",
+    goal: "Erstellen Sie einen systematischen Code-Review-Prozess, der Fehler früh erkennt und die Code-Qualität aufrechterhält",
+    difficulty: "Mittelstufe",
+    category: "Entwicklung",
+    idealPrompt: "Erstellen Sie eine umfassende Code-Review-Checkliste für ein Team von 8 Entwicklern zur Verbesserung der Code-Qualität und Reduzierung von Deployment-Fehlern. Beinhalten Sie: 1) Automatisierte Vorab-Checks, 2) Manuelle Review-Kriterien (Funktionalität, Sicherheit, Performance), 3) Review-Zuweisungsprozess, 4) Genehmigungsworkflow, 5) Dokumentationsanforderungen. Fokussieren Sie sich auf praktische, umsetzbare Punkte, die sofort implementiert werden können.",
     hints: [
-      "Specify team size context",
-      "Include both automated and manual elements",
-      "Focus on practical implementation",
-      "Address the specific problems mentioned"
+      "Spezifizieren Sie den Teamgrößen-Kontext",
+      "Beinhalten Sie sowohl automatisierte als auch manuelle Elemente",
+      "Fokussieren Sie sich auf praktische Umsetzung",
+      "Adressieren Sie die spezifischen genannten Probleme"
     ],
     evaluation: {
       criteria: [
-        "Mentions team context/size",
-        "Includes both automated and manual checks",
-        "Addresses specific problems (bugs, consistency)",
-        "Requests actionable, implementable items",
-        "Covers the full review process"
+        "Erwähnt Team-Kontext/Größe",
+        "Beinhaltet sowohl automatisierte als auch manuelle Checks",
+        "Adressiert spezifische Probleme (Fehler, Konsistenz)",
+        "Fordert umsetzbare, implementierbare Punkte",
+        "Deckt den vollständigen Review-Prozess ab"
       ],
-      sampleGoodPrompt: "Create a comprehensive code review checklist for a team of 8 developers to improve code quality...",
+      sampleGoodPrompt: "Erstellen Sie eine umfassende Code-Review-Checkliste für ein Team von 8 Entwicklern zur Verbesserung der Code-Qualität...",
       commonMistakes: [
-        "Generic checklist without context",
-        "Doesn't address specific problems",
-        "Too theoretical, not actionable"
+        "Generische Checkliste ohne Kontext",
+        "Adressiert nicht die spezifischen Probleme",
+        "Zu theoretisch, nicht umsetzbar"
       ]
     }
   }
@@ -203,9 +203,9 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case "Beginner": return "bg-success text-white";
-      case "Intermediate": return "bg-warning text-white";
-      case "Advanced": return "bg-primary text-primary-foreground";
+      case "Anfänger": return "bg-success text-white";
+      case "Mittelstufe": return "bg-warning text-white";
+      case "Fortgeschritten": return "bg-primary text-primary-foreground";
       default: return "bg-muted text-muted-foreground";
     }
   };
@@ -221,11 +221,11 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
             className="flex items-center gap-2 hover:bg-accent-soft"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Home
+            Zurück zur Startseite
           </Button>
           <div className="text-right">
             <p className="text-sm text-muted-foreground">
-              Scenario {currentScenario + 1} of {scenarios.length}
+              Szenario {currentScenario + 1} von {scenarios.length}
             </p>
             <Progress value={progress} className="w-32" />
           </div>
@@ -252,20 +252,20 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
                     <div>
                       <h3 className="font-semibold mb-2 flex items-center gap-2">
                         <Target className="h-4 w-4 text-accent" />
-                        Scenario
+                        Szenario
                       </h3>
                       <p className="text-muted-foreground">{scenario.description}</p>
                     </div>
                     
                     <div>
-                      <h3 className="font-semibold mb-2">Context</h3>
+                      <h3 className="font-semibold mb-2">Kontext</h3>
                       <p className="text-muted-foreground text-sm bg-accent-soft p-3 rounded-lg">
                         {scenario.context}
                       </p>
                     </div>
                     
                     <div>
-                      <h3 className="font-semibold mb-2">Your Goal</h3>
+                      <h3 className="font-semibold mb-2">Ihr Ziel</h3>
                       <p className="text-accent">{scenario.goal}</p>
                     </div>
                   </div>
@@ -281,7 +281,7 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
                     className="flex items-center gap-2 mb-4 hover:bg-accent-soft"
                   >
                     <Lightbulb className="h-4 w-4" />
-                    {showHints ? "Hide Hints" : "Show Hints"}
+                    {showHints ? "Hinweise ausblenden" : "Hinweise anzeigen"}
                   </Button>
                   
                   {showHints && (
@@ -302,12 +302,12 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
             <div className="space-y-6">
               <Card className="bg-gradient-card border-0 shadow-card">
                 <div className="p-6">
-                  <h3 className="text-xl font-semibold mb-4">Write Your Prompt</h3>
+                  <h3 className="text-xl font-semibold mb-4">Schreiben Sie Ihren Prompt</h3>
                   
                   <Textarea
                     value={userPrompt}
                     onChange={(e) => setUserPrompt(e.target.value)}
-                    placeholder="Write your prompt here... Be specific, clear, and consider the context provided."
+                    placeholder="Schreiben Sie Ihren Prompt hier... Seien Sie spezifisch, klar und berücksichtigen Sie den bereitgestellten Kontext."
                     className="min-h-48 bg-background/50 border-muted resize-none"
                     disabled={showFeedback && !isRefining}
                   />
@@ -315,11 +315,11 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
                   <div className="flex justify-between items-center mt-4">
                     <div className="flex items-center gap-4">
                       <p className="text-sm text-muted-foreground">
-                        {userPrompt.length} characters
+                        {userPrompt.length} Zeichen
                       </p>
                       {isRefining && (
                         <Badge variant="outline" className="text-primary border-primary">
-                          Refining
+                          Wird verfeinert
                         </Badge>
                       )}
                     </div>
@@ -332,7 +332,7 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
                           className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                         >
                           <RefreshCw className="h-4 w-4 mr-2" />
-                          Refine Prompt
+                          Prompt verfeinern
                         </Button>
                       )}
                       
@@ -342,7 +342,7 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
                           className="bg-gradient-primary hover:bg-gradient-primary/90 shadow-button"
                           disabled={currentScenario >= scenarios.length - 1}
                         >
-                          Next Scenario
+                          Nächstes Szenario
                         </Button>
                       ) : null}
                     </div>
@@ -368,11 +368,11 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
               {showFeedback && (
                 <Card className="bg-gradient-card border-0 shadow-card animate-slide-up">
                   <div className="p-6">
-                    <h3 className="text-xl font-semibold mb-4">Reference Materials</h3>
+                    <h3 className="text-xl font-semibold mb-4">Referenzmaterialien</h3>
                     
                     <div className="space-y-4">
                       <div>
-                        <h4 className="font-semibold mb-2">Evaluation Criteria</h4>
+                        <h4 className="font-semibold mb-2">Bewertungskriterien</h4>
                         <div className="space-y-2">
                           {scenario.evaluation.criteria.map((criterion, index) => (
                             <div key={index} className="flex items-start gap-2 text-sm">
@@ -384,7 +384,7 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
                       </div>
                       
                       <div>
-                        <h4 className="font-semibold mb-2">Sample Expert Prompt</h4>
+                        <h4 className="font-semibold mb-2">Beispiel Experten-Prompt</h4>
                         <p className="text-sm text-muted-foreground bg-accent-soft p-3 rounded-lg">
                           {scenario.evaluation.sampleGoodPrompt}
                         </p>

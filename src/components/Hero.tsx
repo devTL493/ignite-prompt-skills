@@ -17,11 +17,11 @@ export function Hero({ onStartQuiz }: HeroProps) {
           {/* Header */}
           <div className="mb-12 animate-fade-in">
             <h1 className="text-5xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-white to-accent-foreground bg-clip-text text-transparent">
-              Ignite Prompt Skills
+              Prompt-Fähigkeiten Entwickeln
             </h1>
             <p className="text-xl lg:text-2xl text-foreground/80 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Master the art of AI prompting through interactive scenarios. 
-              Train your team to craft perfect prompts that deliver exceptional results.
+              Meistern Sie die Kunst des KI-Promptings durch interaktive Szenarien. 
+              Trainieren Sie Ihr Team, perfekte Prompts zu erstellen, die außergewöhnliche Ergebnisse liefern.
             </p>
           </div>
 
@@ -32,9 +32,9 @@ export function Hero({ onStartQuiz }: HeroProps) {
                 <div className="w-12 h-12 bg-gradient-accent rounded-lg flex items-center justify-center mx-auto mb-4 animate-float">
                   <Brain className="h-6 w-6 text-accent-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Smart Learning</h3>
+                <h3 className="text-lg font-semibold mb-2">Intelligentes Lernen</h3>
                 <p className="text-muted-foreground">
-                  Interactive scenarios designed by AI experts to challenge and educate
+                  Interaktive Szenarien, entwickelt von KI-Experten, um zu fordern und zu lehren
                 </p>
               </div>
             </Card>
@@ -44,9 +44,9 @@ export function Hero({ onStartQuiz }: HeroProps) {
                 <div className="w-12 h-12 bg-gradient-accent rounded-lg flex items-center justify-center mx-auto mb-4 animate-float" style={{ animationDelay: '0.2s' }}>
                   <Target className="h-6 w-6 text-accent-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Real Scenarios</h3>
+                <h3 className="text-lg font-semibold mb-2">Echte Szenarien</h3>
                 <p className="text-muted-foreground">
-                  Practice with actual business cases and real-world challenges
+                  Üben Sie mit tatsächlichen Geschäftsfällen und realen Herausforderungen
                 </p>
               </div>
             </Card>
@@ -56,9 +56,9 @@ export function Hero({ onStartQuiz }: HeroProps) {
                 <div className="w-12 h-12 bg-gradient-accent rounded-lg flex items-center justify-center mx-auto mb-4 animate-float" style={{ animationDelay: '0.4s' }}>
                   <Zap className="h-6 w-6 text-accent-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Instant Feedback</h3>
+                <h3 className="text-lg font-semibold mb-2">Sofortiges Feedback</h3>
                 <p className="text-muted-foreground">
-                  Get immediate insights and improvements for your prompts
+                  Erhalten Sie unmittelbare Erkenntnisse und Verbesserungen für Ihre Prompts
                 </p>
               </div>
             </Card>
@@ -71,10 +71,10 @@ export function Hero({ onStartQuiz }: HeroProps) {
               size="lg"
               className="bg-gradient-accent hover:bg-gradient-accent/90 text-accent-foreground font-semibold px-12 py-6 text-lg shadow-button hover:shadow-glow transition-all duration-300 hover:scale-105 animate-glow"
             >
-              Start Your Journey
+              Starten Sie Ihre Reise
             </Button>
             <p className="text-sm text-foreground/60 mt-4">
-              No signup required • Free to try
+              Keine Anmeldung erforderlich • Kostenlos testen
             </p>
           </div>
         </div>

@@ -72,13 +72,13 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
 
   const generateFeedback = (score: number, prompt: string, scenario: any): string => {
     if (score >= 80) {
-      return "Excellent prompt! You've included most of the key elements needed for this scenario. Your prompt is specific, well-structured, and addresses the context appropriately.";
+      return "Ausgezeichneter Prompt! Sie haben die meisten Schlüsselelemente für dieses Szenario eingefügt. Ihr Prompt ist spezifisch, gut strukturiert und behandelt den Kontext angemessen.";
     } else if (score >= 60) {
-      return "Good foundation! Your prompt covers some important aspects, but there's room for improvement in specificity and structure.";
+      return "Gute Grundlage! Ihr Prompt deckt einige wichtige Aspekte ab, aber es gibt Verbesserungspotenzial bei Spezifität und Struktur.";
     } else if (score >= 40) {
-      return "Your prompt has potential but needs more detail. Consider being more specific about the desired output format and including more context.";
+      return "Ihr Prompt hat Potenzial, braucht aber mehr Details. Berücksichtigen Sie, spezifischer über das gewünschte Ausgabeformat zu sein und mehr Kontext einzubeziehen.";
     } else {
-      return "This prompt needs significant improvement. Focus on being more specific, providing clear context, and structuring your request more clearly.";
+      return "Dieser Prompt benötigt erhebliche Verbesserungen. Konzentrieren Sie sich darauf, spezifischer zu sein, klaren Kontext bereitzustellen und Ihre Anfrage strukturierter zu gestalten.";
     }
   };
 
@@ -86,25 +86,25 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
     const suggestions = [];
     const lowerPrompt = prompt.toLowerCase();
     
-    if (!lowerPrompt.includes("tone") && !lowerPrompt.includes("professional")) {
-      suggestions.push("Specify the desired tone (e.g., professional, empathetic, formal)");
+    if (!lowerPrompt.includes("ton") && !lowerPrompt.includes("professionell")) {
+      suggestions.push("Spezifizieren Sie den gewünschten Ton (z.B. professionell, empathisch, formal)");
     }
     
-    if (!lowerPrompt.includes("include") && !lowerPrompt.includes("structure")) {
-      suggestions.push("Provide a clear structure or list of elements to include");
+    if (!lowerPrompt.includes("beinhalten") && !lowerPrompt.includes("struktur")) {
+      suggestions.push("Geben Sie eine klare Struktur oder Liste der einzubeziehenden Elemente an");
     }
     
     if (prompt.length < 50) {
-      suggestions.push("Add more context and specific details to your prompt");
+      suggestions.push("Fügen Sie mehr Kontext und spezifische Details zu Ihrem Prompt hinzu");
     }
     
     if (!lowerPrompt.includes("1)") && !lowerPrompt.includes("-") && !lowerPrompt.includes("•")) {
-      suggestions.push("Consider using numbered points or bullet points for clarity");
+      suggestions.push("Erwägen Sie die Verwendung nummerierter Punkte oder Aufzählungszeichen für Klarheit");
     }
     
     if (score < 60) {
-      suggestions.push("Reference the specific scenario context in your prompt");
-      suggestions.push("Be more explicit about the expected output format");
+      suggestions.push("Referenzieren Sie den spezifischen Szenario-Kontext in Ihrem Prompt");
+      suggestions.push("Seien Sie expliziter über das erwartete Ausgabeformat");
     }
     
     return suggestions.slice(0, 3); // Limit to 3 suggestions
@@ -117,10 +117,10 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
   };
 
   const getScoreBadge = (score: number) => {
-    if (score >= 80) return { text: "Excellent", className: "bg-success text-white" };
-    if (score >= 60) return { text: "Good", className: "bg-warning text-white" };
-    if (score >= 40) return { text: "Fair", className: "bg-secondary text-secondary-foreground" };
-    return { text: "Needs Work", className: "bg-destructive text-white" };
+    if (score >= 80) return { text: "Ausgezeichnet", className: "bg-success text-white" };
+    if (score >= 60) return { text: "Gut", className: "bg-warning text-white" };
+    if (score >= 40) return { text: "Akzeptabel", className: "bg-secondary text-secondary-foreground" };
+    return { text: "Verbesserungsbedarf", className: "bg-destructive text-white" };
   };
 
   return (
@@ -129,12 +129,12 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold flex items-center gap-2">
             <Brain className="h-5 w-5 text-primary" />
-            AI Evaluation
+            KI-Bewertung
           </h3>
           {hasRefinementLeft && score !== null && score < 80 && (
             <Badge variant="outline" className="text-primary border-primary">
               <RefreshCw className="h-3 w-3 mr-1" />
-              Refinement Available
+              Verfeinerung verfügbar
             </Badge>
           )}
         </div>
@@ -142,7 +142,7 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
         {score === null ? (
           <div className="space-y-4">
             <p className="text-muted-foreground">
-              Ready to get AI-powered feedback on your prompt? Our advanced language model will analyze your prompt for clarity, specificity, and effectiveness.
+              Bereit für KI-gestütztes Feedback zu Ihrem Prompt? Unser fortschrittliches Sprachmodell wird Ihren Prompt auf Klarheit, Spezifität und Effektivität analysieren.
             </p>
             <Button
               onClick={simulateAIScoring}
@@ -152,12 +152,12 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  AI is analyzing your prompt...
+                  KI analysiert Ihren Prompt...
                 </>
               ) : (
                 <>
                   <Brain className="h-4 w-4 mr-2" />
-                  Get AI Score
+                  KI-Bewertung erhalten
                 </>
               )}
             </Button>
@@ -181,7 +181,7 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
             <div>
               <h4 className="font-semibold mb-2 flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
-                AI Feedback
+                KI-Feedback
               </h4>
               <p className="text-muted-foreground bg-accent-soft p-4 rounded-lg">
                 {feedback}
@@ -193,7 +193,7 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
               <div>
                 <h4 className="font-semibold mb-3 flex items-center gap-2">
                   <AlertCircle className="h-4 w-4 text-primary" />
-                  Improvement Suggestions
+                  Verbesserungsvorschläge
                 </h4>
                 <div className="space-y-2">
                   {suggestions.map((suggestion, index) => (
@@ -210,7 +210,7 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
             {hasRefinementLeft && score < 80 && (
               <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
                 <p className="text-sm text-primary">
-                  <strong>💡 Tip:</strong> You have one refinement opportunity left! Use the suggestions above to improve your prompt and potentially achieve a higher score.
+                  <strong>💡 Tipp:</strong> Sie haben noch eine Verfeinerungsmöglichkeit! Nutzen Sie die obigen Vorschläge, um Ihren Prompt zu verbessern und möglicherweise eine höhere Punktzahl zu erreichen.
                 </p>
               </div>
             )}
