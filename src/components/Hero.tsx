@@ -23,7 +23,7 @@ export function Hero({
         <div className="max-w-4xl mx-auto text-center">
           {/* Header */}
           <div className="mb-12 animate-fade-in">
-            <h1 className="text-5xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-white to-accent-foreground bg-clip-text text-transparent">
+            <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-white via-white to-accent-foreground bg-clip-text text-slate-950 lg:text-7xl">
               Prompt-Fähigkeiten Entwickeln
             </h1>
             <p className="text-xl lg:text-2xl text-foreground/80 mb-8 max-w-3xl mx-auto leading-relaxed">
@@ -35,40 +35,40 @@ export function Hero({
           {/* Features */}
           <div className="grid md:grid-cols-3 gap-6 mb-12 animate-slide-up">
             <Card className="bg-gradient-card border-0 shadow-card hover:shadow-glow transition-all duration-300 hover:scale-105">
-              <div className="p-6 text-center">
+              <div className="p-6 text-center bg-red-700">
                 <div className="w-12 h-12 bg-gradient-accent rounded-lg flex items-center justify-center mx-auto mb-4 animate-float">
                   <Brain className="h-6 w-6 text-accent-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Intelligentes Lernen</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-lg font-semibold mb-2 text-zinc-300">Intelligentes Lernen</h3>
+                <p className="text-base text-gray-50">
                   Interaktive Szenarien, entwickelt von KI-Experten, um zu fordern und zu lehren
                 </p>
               </div>
             </Card>
 
             <Card className="bg-gradient-card border-0 shadow-card hover:shadow-glow transition-all duration-300 hover:scale-105">
-              <div className="p-6 text-center">
+              <div className="p-6 text-center bg-red-700">
                 <div className="w-12 h-12 bg-gradient-accent rounded-lg flex items-center justify-center mx-auto mb-4 animate-float" style={{
                 animationDelay: '0.2s'
               }}>
                   <Target className="h-6 w-6 text-accent-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Echte Szenarien</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-lg font-semibold mb-2 text-zinc-300">Echte Szenarien</h3>
+                <p className="text-zinc-50">
                   Üben Sie mit tatsächlichen Geschäftsfällen und realen Herausforderungen
                 </p>
               </div>
             </Card>
 
             <Card className="bg-gradient-card border-0 shadow-card hover:shadow-glow transition-all duration-300 hover:scale-105">
-              <div className="p-6 text-center">
+              <div className="p-6 text-center bg-red-800">
                 <div className="w-12 h-12 bg-gradient-accent rounded-lg flex items-center justify-center mx-auto mb-4 animate-float" style={{
                 animationDelay: '0.4s'
               }}>
                   <Zap className="h-6 w-6 text-accent-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Sofortiges Feedback</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-lg mb-2 font-semibold text-zinc-300">Sofortiges Feedback</h3>
+                <p className="text-zinc-50">
                   Erhalten Sie unmittelbare Erkenntnisse und Verbesserungen für Ihre Prompts
                 </p>
               </div>
