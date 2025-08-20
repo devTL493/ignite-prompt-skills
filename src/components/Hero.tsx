@@ -26,10 +26,7 @@ export function Hero({
             <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-white via-white to-accent-foreground bg-clip-text text-slate-950 lg:text-7xl">
               Prompt-Fähigkeiten Entwickeln
             </h1>
-            <p className="text-xl lg:text-2xl text-foreground/80 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Meistern Sie die Kunst des KI-Promptings durch interaktive Szenarien. 
-              Trainieren Sie Ihr Team, perfekte Prompts zu erstellen, die außergewöhnliche Ergebnisse liefern.
-            </p>
+            <p className="text-xl lg:text-2xl text-foreground/80 mb-8 max-w-3xl mx-auto leading-relaxed">Meistern Sie die Kunst des KI-Promptings durch interaktive Szenarien. Trainieren Sie perfekte Prompts zu erstellen, die perfekte Ergebnisse liefern.</p>
           </div>
 
           {/* Features */}
