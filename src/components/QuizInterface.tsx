@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Check, X, Lightbulb, Target, RefreshCw } from "lucide-react";
+import { ArrowLeft, Check, X, Lightbulb, Target, RefreshCw, ChevronLeft, ChevronRight, Menu } from "lucide-react";
 import { AIScoring } from "./AIScoring";
+import { ScenarioNavigator } from "./ScenarioNavigator";
 import { Scenario } from "@/types";
+import { useProgress } from "@/hooks/useProgress";
 
 interface QuizInterfaceProps {
   onBack: () => void;
@@ -14,7 +16,8 @@ interface QuizInterfaceProps {
 }
 
 export function QuizInterface({ onBack, scenarios }: QuizInterfaceProps) {
-  const [currentScenario, setCurrentScenario] = useState(0);
+  const { progress, setCurrentScenario: updateCurrentScenario } = useProgress();
+  const [currentScenario, setCurrentScenario] = useState(progress?.currentScenario || 0);
   const [userPrompt, setUserPrompt] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
   const [score, setScore] = useState(0);
@@ -24,9 +27,59 @@ export function QuizInterface({ onBack, scenarios }: QuizInterfaceProps) {
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [hasRefined, setHasRefined] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
+  const [showNavigator, setShowNavigator] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const scenario = scenarios[currentScenario];
-  const progress = ((currentScenario + 1) / scenarios.length) * 100;
+  const progressPercentage = ((currentScenario + 1) / scenarios.length) * 100;
+
+  // Track unsaved changes
+  useEffect(() => {
+    setHasUnsavedChanges(userPrompt.length > 0 && !showFeedback);
+  }, [userPrompt, showFeedback]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLTextAreaElement) return;
+      
+      if (e.key === 'ArrowLeft' && currentScenario > 0) {
+        e.preventDefault();
+        handleScenarioChange(currentScenario - 1);
+      } else if (e.key === 'ArrowRight' && currentScenario < scenarios.length - 1) {
+        e.preventDefault();
+        handleScenarioChange(currentScenario + 1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentScenario, scenarios.length]);
+
+  const handleScenarioChange = (newScenario: number) => {
+    if (hasUnsavedChanges) {
+      const confirmed = window.confirm(
+        "Sie haben ungespeicherte Änderungen. Möchten Sie wirklich das Szenario wechseln?"
+      );
+      if (!confirmed) return;
+    }
+
+    setCurrentScenario(newScenario);
+    updateCurrentScenario(newScenario);
+    resetScenarioState();
+  };
+
+  const resetScenarioState = () => {
+    setUserPrompt("");
+    setShowFeedback(false);
+    setShowHints(false);
+    setAiScore(null);
+    setAiFeedback("");
+    setAiSuggestions([]);
+    setHasRefined(false);
+    setIsRefining(false);
+    setHasUnsavedChanges(false);
+  };
 
   const evaluatePrompt = () => {
     const criteria = scenario.evaluation.criteria;
@@ -77,15 +130,13 @@ export function QuizInterface({ onBack, scenarios }: QuizInterfaceProps) {
 
   const nextScenario = () => {
     if (currentScenario < scenarios.length - 1) {
-      setCurrentScenario(currentScenario + 1);
-      setUserPrompt("");
-      setShowFeedback(false);
-      setShowHints(false);
-      setAiScore(null);
-      setAiFeedback("");
-      setAiSuggestions([]);
-      setHasRefined(false);
-      setIsRefining(false);
+      handleScenarioChange(currentScenario + 1);
+    }
+  };
+
+  const previousScenario = () => {
+    if (currentScenario > 0) {
+      handleScenarioChange(currentScenario - 1);
     }
   };
 
@@ -111,13 +162,73 @@ export function QuizInterface({ onBack, scenarios }: QuizInterfaceProps) {
             <ArrowLeft className="h-4 w-4" />
             Zurück zur Startseite
           </Button>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">
-              Szenario {currentScenario + 1} von {scenarios.length}
-            </p>
-            <Progress value={progress} className="w-32" />
+          
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowNavigator(!showNavigator)}
+              className="flex items-center gap-2"
+            >
+              <Menu className="h-4 w-4" />
+              Szenario-Übersicht
+            </Button>
+            
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">
+                Szenario {currentScenario + 1} von {scenarios.length}
+              </p>
+              <Progress value={progressPercentage} className="w-32" />
+            </div>
           </div>
         </div>
+
+        {/* Navigation Controls */}
+        <div className="flex items-center justify-between mb-6">
+          <Button
+            variant="outline"
+            onClick={previousScenario}
+            disabled={currentScenario === 0}
+            className="flex items-center gap-2"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Vorheriges
+          </Button>
+          
+          <div className="flex items-center gap-2">
+            {hasUnsavedChanges && (
+              <Badge variant="outline" className="text-warning border-warning">
+                Ungespeicherte Änderungen
+              </Badge>
+            )}
+            <span className="text-sm text-muted-foreground">
+              Verwenden Sie ←/→ Pfeiltasten zur Navigation
+            </span>
+          </div>
+          
+          <Button
+            variant="outline"
+            onClick={nextScenario}
+            disabled={currentScenario >= scenarios.length - 1}
+            className="flex items-center gap-2"
+          >
+            Nächstes
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Scenario Navigator */}
+        {showNavigator && (
+          <div className="mb-8 animate-slide-up">
+            <ScenarioNavigator
+              scenarios={scenarios}
+              currentScenario={currentScenario}
+              onSelectScenario={(index) => {
+                handleScenarioChange(index);
+                setShowNavigator(false);
+              }}
+            />
+          </div>
+        )}
 
         <div className="max-w-4xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-8">

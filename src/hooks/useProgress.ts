@@ -114,6 +114,26 @@ export function useProgress() {
     return "Grundkenntnisse";
   };
 
+  const setCurrentScenario = (scenarioId: number) => {
+    if (!progress) return;
+    
+    const updatedProgress: UserProgress = {
+      ...progress,
+      currentScenario: scenarioId
+    };
+    
+    saveProgress(updatedProgress);
+  };
+
+  const getScenarioStatus = (scenarioId: number): "new" | "partial" | "completed" => {
+    if (!progress) return "new";
+    
+    const result = progress.completedScenarios.find(s => s.scenarioId === scenarioId);
+    if (result) return "completed";
+    if (scenarioId <= progress.currentScenario) return "partial";
+    return "new";
+  };
+
   return {
     progress,
     isLoading,
@@ -123,6 +143,8 @@ export function useProgress() {
     resetProgress,
     getScenarioResult,
     getCompletionPercentage,
-    getSkillLevel
+    getSkillLevel,
+    setCurrentScenario,
+    getScenarioStatus
   };
 }
