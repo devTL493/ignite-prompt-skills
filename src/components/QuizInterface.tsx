@@ -4,7 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Check, X, Lightbulb, Target } from "lucide-react";
+import { ArrowLeft, Check, X, Lightbulb, Target, RefreshCw } from "lucide-react";
+import { AIScoring } from "./AIScoring";
 
 interface Scenario {
   id: number;
@@ -130,6 +131,11 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
   const [showFeedback, setShowFeedback] = useState(false);
   const [score, setScore] = useState(0);
   const [showHints, setShowHints] = useState(false);
+  const [aiScore, setAiScore] = useState<number | null>(null);
+  const [aiFeedback, setAiFeedback] = useState("");
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  const [hasRefined, setHasRefined] = useState(false);
+  const [isRefining, setIsRefining] = useState(false);
 
   const scenario = scenarios[currentScenario];
   const progress = ((currentScenario + 1) / scenarios.length) * 100;
@@ -168,12 +174,30 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
     setShowFeedback(true);
   };
 
+  const handleAIScoreReceived = (score: number, feedback: string, suggestions: string[]) => {
+    setAiScore(score);
+    setAiFeedback(feedback);
+    setAiSuggestions(suggestions);
+    setShowFeedback(true);
+  };
+
+  const handleRefinePrompt = () => {
+    setIsRefining(true);
+    setShowFeedback(false);
+    setAiScore(null);
+  };
+
   const nextScenario = () => {
     if (currentScenario < scenarios.length - 1) {
       setCurrentScenario(currentScenario + 1);
       setUserPrompt("");
       setShowFeedback(false);
       setShowHints(false);
+      setAiScore(null);
+      setAiFeedback("");
+      setAiSuggestions([]);
+      setHasRefined(false);
+      setIsRefining(false);
     }
   };
 
@@ -181,7 +205,7 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
     switch (difficulty) {
       case "Beginner": return "bg-success text-white";
       case "Intermediate": return "bg-warning text-white";
-      case "Advanced": return "bg-destructive text-white";
+      case "Advanced": return "bg-primary text-primary-foreground";
       default: return "bg-muted text-muted-foreground";
     }
   };
@@ -284,48 +308,67 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
                     value={userPrompt}
                     onChange={(e) => setUserPrompt(e.target.value)}
                     placeholder="Write your prompt here... Be specific, clear, and consider the context provided."
-                    className="min-h-48 bg-background/50 border-accent-soft resize-none"
-                    disabled={showFeedback}
+                    className="min-h-48 bg-background/50 border-muted resize-none"
+                    disabled={showFeedback && !isRefining}
                   />
                   
                   <div className="flex justify-between items-center mt-4">
-                    <p className="text-sm text-muted-foreground">
-                      {userPrompt.length} characters
-                    </p>
+                    <div className="flex items-center gap-4">
+                      <p className="text-sm text-muted-foreground">
+                        {userPrompt.length} characters
+                      </p>
+                      {isRefining && (
+                        <Badge variant="outline" className="text-primary border-primary">
+                          Refining
+                        </Badge>
+                      )}
+                    </div>
                     
-                    {!showFeedback ? (
-                      <Button
-                        onClick={evaluatePrompt}
-                        disabled={userPrompt.trim().length < 20}
-                        className="bg-gradient-accent hover:bg-gradient-accent/90 text-accent-foreground shadow-button"
-                      >
-                        Evaluate Prompt
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={nextScenario}
-                        className="bg-gradient-primary hover:bg-gradient-primary/90 shadow-button"
-                        disabled={currentScenario >= scenarios.length - 1}
-                      >
-                        Next Scenario
-                      </Button>
-                    )}
+                    <div className="flex gap-2">
+                      {showFeedback && !hasRefined && aiScore !== null && aiScore < 80 && (
+                        <Button
+                          onClick={handleRefinePrompt}
+                          variant="outline"
+                          className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                        >
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Refine Prompt
+                        </Button>
+                      )}
+                      
+                      {showFeedback ? (
+                        <Button
+                          onClick={nextScenario}
+                          className="bg-gradient-primary hover:bg-gradient-primary/90 shadow-button"
+                          disabled={currentScenario >= scenarios.length - 1}
+                        >
+                          Next Scenario
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               </Card>
 
-              {/* Feedback */}
+              {/* AI Scoring */}
+              <AIScoring
+                prompt={userPrompt}
+                scenario={scenario}
+                onScoreReceived={(score, feedback, suggestions) => {
+                  handleAIScoreReceived(score, feedback, suggestions);
+                  if (isRefining) {
+                    setHasRefined(true);
+                    setIsRefining(false);
+                  }
+                }}
+                hasRefinementLeft={!hasRefined}
+              />
+
+              {/* Reference Materials */}
               {showFeedback && (
                 <Card className="bg-gradient-card border-0 shadow-card animate-slide-up">
                   <div className="p-6">
-                    <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                      {score >= 70 ? (
-                        <Check className="h-5 w-5 text-success" />
-                      ) : (
-                        <X className="h-5 w-5 text-destructive" />
-                      )}
-                      Your Score: {score}%
-                    </h3>
+                    <h3 className="text-xl font-semibold mb-4">Reference Materials</h3>
                     
                     <div className="space-y-4">
                       <div>
@@ -341,7 +384,7 @@ export function QuizInterface({ onBack }: QuizInterfaceProps) {
                       </div>
                       
                       <div>
-                        <h4 className="font-semibold mb-2">Sample Good Prompt</h4>
+                        <h4 className="font-semibold mb-2">Sample Expert Prompt</h4>
                         <p className="text-sm text-muted-foreground bg-accent-soft p-3 rounded-lg">
                           {scenario.evaluation.sampleGoodPrompt}
                         </p>
