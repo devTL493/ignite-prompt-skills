@@ -112,6 +112,17 @@ export interface AIScoreResult {
   criticalIssues: string[];
 }
 
+export interface CompetitionFile {
+  id: string;
+  competition_id: string;
+  file_name: string;
+  file_path: string;
+  file_type: string | null;
+  file_size: number | null;
+  uploaded_at: string;
+  uploaded_by: string | null;
+}
+
 export interface CertificateData {
   userName: string;
   completionDate: Date;

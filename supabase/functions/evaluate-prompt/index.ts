@@ -15,6 +15,8 @@ interface EvaluationRequest {
   keyPhrases: string[];
   commonMistakes: string[];
   department?: string;
+  category?: string;
+  competitionFiles?: { file_name: string; file_type: string }[];
 }
 
 Deno.serve(async (req) => {
@@ -32,7 +34,7 @@ Deno.serve(async (req) => {
     }
 
     const body: EvaluationRequest = await req.json();
-    const { prompt, scenarioTitle, scenarioContext, scenarioGoal, idealPrompt, evaluationCriteria, keyPhrases, commonMistakes, department } = body;
+    const { prompt, scenarioTitle, scenarioContext, scenarioGoal, idealPrompt, evaluationCriteria, keyPhrases, commonMistakes, department, category, competitionFiles } = body;
 
     if (!prompt || prompt.trim().length < 20) {
       return new Response(
@@ -48,13 +50,27 @@ Deno.serve(async (req) => {
     };
     const deptHint = department ? `\nABTEILUNG: ${department}\n${departmentGuidance[department] || ""}\n` : "";
 
+    const categoryGuidance: Record<string, string> = {
+      "Recherche": "Bewerte besonders: Recherchetiefe, systematische Informationssuche, Quellenangaben, Vollständigkeit der Suchstrategie",
+      "Vorbereitung": "Bewerte besonders: Strukturierte Planung, Vollständigkeit, Prioritätensetzung, Zeitmanagement",
+      "Analyse": "Bewerte besonders: Analytische Tiefe, Dateninterpretation, logische Schlussfolgerungen, Methodik",
+      "Entscheidung": "Bewerte besonders: Entscheidungslogik, Abwägung von Alternativen, Risikobewertung, Begründungsqualität",
+    };
+    const catHint = category ? `\nKATEGORIE: ${category}\n${categoryGuidance[category] || ""}\n` : "";
+
+    let filesHint = "";
+    if (competitionFiles && competitionFiles.length > 0) {
+      const fileList = competitionFiles.map(f => `- ${f.file_name} (${f.file_type || 'unbekannt'})`).join('\n');
+      filesHint = `\nVERFÜGBARE HILFSMATERIALIEN:\n${fileList}\nBewerte, ob der Prompt die verfügbaren Hilfsmaterialien angemessen berücksichtigt oder referenziert.\n`;
+    }
+
     const systemPrompt = `Du bist ein Experte für Behördenkommunikation und KI-Prompting im deutschen öffentlichen Dienst. 
 Du bewertest Prompts, die Behördenmitarbeiter schreiben, um KI-Systeme effektiv zu nutzen.
 
 SZENARIO: "${scenarioTitle}"
 KONTEXT: ${scenarioContext}
 ZIEL: ${scenarioGoal}
-${deptHint}
+${deptHint}${catHint}${filesHint}
 IDEALER PROMPT (Golden Shot):
 ${idealPrompt}
 
@@ -114,14 +130,12 @@ Sei streng aber fair. Ein Score von 80+ bedeutet exzellent. Vergleiche immer mit
 
     let result;
     try {
-      // Clean potential issues: remove control characters, fix truncated JSON
       const cleanedText = textContent
-        .replace(/[\x00-\x1F\x7F]/g, ' ')  // Remove control chars
+        .replace(/[\x00-\x1F\x7F]/g, ' ')
         .trim();
       result = JSON.parse(cleanedText);
     } catch (parseError) {
       console.error('JSON parse error, raw text:', textContent.substring(0, 500));
-      // Try to extract score and feedback with regex as fallback
       const scoreMatch = textContent.match(/"score"\s*:\s*(\d+)/);
       const feedbackMatch = textContent.match(/"feedback"\s*:\s*"([^"]+)"/);
       result = {
@@ -133,7 +147,6 @@ Sei streng aber fair. Ein Score von 80+ bedeutet exzellent. Vergleiche immer mit
       };
     }
 
-    // Validate and clamp score
     result.score = Math.max(0, Math.min(100, Math.round(result.score || 0)));
     result.feedback = result.feedback || 'Keine Bewertung verfügbar.';
     result.suggestions = Array.isArray(result.suggestions) ? result.suggestions : [];

@@ -7,9 +7,15 @@ import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useContestantSession } from "@/hooks/useContestantSession";
-import { DBScenario, Submission } from "@/types";
-import { ArrowLeft, ChevronLeft, ChevronRight, Lightbulb, Target, Brain, Loader2, Check, TrendingUp, AlertCircle } from "lucide-react";
+import { DBScenario, Submission, CompetitionFile } from "@/types";
+import { ArrowLeft, ChevronLeft, ChevronRight, Lightbulb, Target, Brain, Loader2, Check, TrendingUp, AlertCircle, FileText, Download } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function CompeteInterface() {
   const { competitionId } = useParams<{ competitionId: string }>();
@@ -22,6 +28,8 @@ export default function CompeteInterface() {
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [showHints, setShowHints] = useState(false);
   const [currentResult, setCurrentResult] = useState<{ score: number; feedback: string; suggestions: string[] } | null>(null);
+  const [competitionFiles, setCompetitionFiles] = useState<CompetitionFile[]>([]);
+  const [showFilesDialog, setShowFilesDialog] = useState(false);
 
   useEffect(() => {
     if (!sessionLoading && !contestant) {
@@ -32,6 +40,7 @@ export default function CompeteInterface() {
   useEffect(() => {
     if (competitionId && contestant) {
       fetchData();
+      fetchFiles();
     }
   }, [competitionId, contestant]);
 
@@ -55,7 +64,6 @@ export default function CompeteInterface() {
           .select("*")
           .in("id", ids);
         if (scenarioData) {
-          // Sort by the order in competition_scenarios
           const orderMap = new Map(scenRes.data.map((cs: any, i: number) => [cs.scenario_id, cs.sort_order]));
           const sorted = (scenarioData as DBScenario[]).sort((a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0));
           setScenarios(sorted);
@@ -63,6 +71,19 @@ export default function CompeteInterface() {
       }
     }
     if (subRes.data) setSubmissions(subRes.data as Submission[]);
+  };
+
+  const fetchFiles = async () => {
+    const { data } = await supabase
+      .from("competition_files")
+      .select("*")
+      .eq("competition_id", competitionId!);
+    if (data) setCompetitionFiles(data as unknown as CompetitionFile[]);
+  };
+
+  const getFileUrl = (filePath: string) => {
+    const { data } = supabase.storage.from("competition-files").getPublicUrl(filePath);
+    return data.publicUrl;
   };
 
   const scenario = scenarios[currentIndex];
@@ -82,6 +103,9 @@ export default function CompeteInterface() {
           evaluationCriteria: scenario.evaluation?.criteria || [],
           keyPhrases: scenario.evaluation?.keyPhrases || [],
           commonMistakes: scenario.evaluation?.commonMistakes || [],
+          department: scenario.department,
+          category: scenario.category,
+          competitionFiles: competitionFiles.map(f => ({ file_name: f.file_name, file_type: f.file_type })),
         },
       });
       if (error) throw error;
@@ -90,7 +114,6 @@ export default function CompeteInterface() {
       const result = { score: data.score, feedback: data.feedback, suggestions: data.suggestions || [] };
       setCurrentResult(result);
 
-      // Save to DB
       await supabase.from("submissions").insert({
         contestant_id: contestant.id,
         scenario_id: scenario.id,
@@ -102,7 +125,6 @@ export default function CompeteInterface() {
         ai_suggestions: result.suggestions,
       });
 
-      // Refresh submissions
       const { data: subs } = await supabase.from("submissions")
         .select("*")
         .eq("competition_id", competitionId!)
@@ -161,9 +183,16 @@ export default function CompeteInterface() {
               <p className="text-xs text-muted-foreground">Code: {contestant.access_code}</p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Szenario {currentIndex + 1} von {scenarios.length}</p>
-            <Progress value={progressPct} className="w-32" />
+          <div className="flex items-center gap-3">
+            {competitionFiles.length > 0 && (
+              <Button variant="outline" onClick={() => setShowFilesDialog(true)}>
+                <FileText className="h-4 w-4 mr-2" />Hilfsmaterialien ({competitionFiles.length})
+              </Button>
+            )}
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Szenario {currentIndex + 1} von {scenarios.length}</p>
+              <Progress value={progressPct} className="w-32" />
+            </div>
           </div>
         </div>
 
@@ -310,6 +339,34 @@ export default function CompeteInterface() {
           </div>
         </div>
       </div>
+
+      {/* Files Dialog */}
+      <Dialog open={showFilesDialog} onOpenChange={setShowFilesDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" /> Hilfsmaterialien
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {competitionFiles.map(f => (
+              <a
+                key={f.id}
+                href={getFileUrl(f.file_path)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 rounded-lg bg-accent-soft hover:bg-accent transition-colors"
+              >
+                <Download className="h-4 w-4 text-primary shrink-0" />
+                <div className="min-w-0">
+                  <p className="font-medium text-sm truncate">{f.file_name}</p>
+                  <p className="text-xs text-muted-foreground">{f.file_type || "Datei"}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
