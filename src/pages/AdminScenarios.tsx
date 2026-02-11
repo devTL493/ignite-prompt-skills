@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { DBScenario } from "@/types";
-import { ArrowLeft, Plus, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -45,6 +45,7 @@ export default function AdminScenarios() {
   const [showDialog, setShowDialog] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => { fetchScenarios(); }, []);
@@ -122,6 +123,33 @@ export default function AdminScenarios() {
   const f = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm(prev => ({ ...prev, [key]: e.target.value }));
 
+  const generateIdealPrompt = async () => {
+    if (!form.context || !form.goal) {
+      toast({ title: "Fehler", description: "Kontext und Ziel sind erforderlich.", variant: "destructive" });
+      return;
+    }
+    setIsGeneratingPrompt(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-ideal-prompt', {
+        body: {
+          context: form.context,
+          goal: form.goal,
+          department: form.department,
+          title: form.title,
+          description: form.description,
+        },
+      });
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+      setForm(prev => ({ ...prev, ideal_prompt: data.idealPrompt }));
+      toast({ title: "Idealer Prompt generiert" });
+    } catch (err: any) {
+      toast({ title: "Generierung fehlgeschlagen", description: err.message || "Bitte versuchen Sie es erneut.", variant: "destructive" });
+    } finally {
+      setIsGeneratingPrompt(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-8">
@@ -191,11 +219,33 @@ export default function AdminScenarios() {
                 </div>
                 <div>
                   <label className="text-sm font-medium">Abteilung</label>
-                  <Input value={form.department} onChange={f("department")} />
+                  <Select value={form.department} onValueChange={v => setForm(p => ({ ...p, department: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Abteilung wählen" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Führungsaufgabe">Führungsaufgabe</SelectItem>
+                      <SelectItem value="Fachlich - Leistung">Fachlich - Leistung</SelectItem>
+                      <SelectItem value="Fachlich - MuI">Fachlich - MuI</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium">Idealer Prompt</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-sm font-medium">Idealer Prompt</label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={generateIdealPrompt}
+                    disabled={isGeneratingPrompt || !form.context || !form.goal}
+                  >
+                    {isGeneratingPrompt ? (
+                      <><Loader2 className="h-3 w-3 mr-1 animate-spin" />Generiert...</>
+                    ) : (
+                      <><Sparkles className="h-3 w-3 mr-1" />KI generieren</>
+                    )}
+                  </Button>
+                </div>
                 <Textarea value={form.ideal_prompt} onChange={f("ideal_prompt")} rows={4} />
               </div>
               <div>

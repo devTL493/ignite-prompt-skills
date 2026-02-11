@@ -35,6 +35,7 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
           evaluationCriteria: scenario.evaluation.criteria,
           keyPhrases: scenario.evaluation.keyPhrases,
           commonMistakes: scenario.evaluation.commonMistakes,
+          department: scenario.department,
         },
       });
 
