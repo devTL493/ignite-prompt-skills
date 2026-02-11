@@ -104,7 +104,26 @@ Sei streng aber fair. Ein Score von 80+ bedeutet exzellent. Vergleiche immer mit
       );
     }
 
-    const result = JSON.parse(textContent);
+    let result;
+    try {
+      // Clean potential issues: remove control characters, fix truncated JSON
+      const cleanedText = textContent
+        .replace(/[\x00-\x1F\x7F]/g, ' ')  // Remove control chars
+        .trim();
+      result = JSON.parse(cleanedText);
+    } catch (parseError) {
+      console.error('JSON parse error, raw text:', textContent.substring(0, 500));
+      // Try to extract score and feedback with regex as fallback
+      const scoreMatch = textContent.match(/"score"\s*:\s*(\d+)/);
+      const feedbackMatch = textContent.match(/"feedback"\s*:\s*"([^"]+)"/);
+      result = {
+        score: scoreMatch ? parseInt(scoreMatch[1]) : 50,
+        feedback: feedbackMatch ? feedbackMatch[1] : 'Bewertung konnte nicht vollständig verarbeitet werden.',
+        suggestions: [],
+        strengths: [],
+        criticalIssues: [],
+      };
+    }
 
     // Validate and clamp score
     result.score = Math.max(0, Math.min(100, Math.round(result.score || 0)));
