@@ -4,8 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, RefreshCw, Brain, TrendingUp, AlertCircle } from "lucide-react";
-import { PromptComparator } from "@/utils/promptComparison";
 import { Scenario } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 interface AIScoringProps {
   prompt: string;
@@ -20,75 +21,48 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
   const [feedback, setFeedback] = useState<string>("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
-  const simulateAIScoring = async () => {
+  const evaluatePrompt = async () => {
     setIsLoading(true);
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Use new comparison-based scoring
-    const comparison = PromptComparator.compareWithIdeal(prompt, scenario);
-    
-    // Base score calculation with ideal prompt comparison
-    let calculatedScore = 40; // Lower base score
-    const lowerPrompt = prompt.toLowerCase();
-    
-    // Similarity to ideal prompt is the primary factor
-    calculatedScore += Math.round(comparison.similarity * 0.4); // Up to 40 points for similarity
-    
-    // Check for key elements from the scenario
-    const keyPhrases = scenario.evaluation.keyPhrases || [];
-    const foundKeyPhrases = keyPhrases.filter(phrase => 
-      lowerPrompt.includes(phrase.toLowerCase())
-    );
-    calculatedScore += Math.min(20, foundKeyPhrases.length * 4); // Up to 20 points for key phrases
-    
-    // Structure bonus
-    if (lowerPrompt.includes("1)") || lowerPrompt.includes("-") || lowerPrompt.includes("struktur")) {
-      calculatedScore += 10;
-    }
-    
-    // Length and detail bonus
-    if (prompt.length > 150) {
-      calculatedScore += 8;
-    }
-    
-    // Domain-specific elements
-    if (lowerPrompt.includes("rechtsgrundlage") || lowerPrompt.includes("dsgvo") || lowerPrompt.includes("barrierefrei")) {
-      calculatedScore += 12;
-    }
-    
-    calculatedScore = Math.max(0, Math.min(100, calculatedScore));
-    
-    // Generate feedback and suggestions based on comparison
-    const generatedFeedback = generateComparisonBasedFeedback(calculatedScore, comparison, scenario);
-    const generatedSuggestions = PromptComparator.generateIdealPromptBasedSuggestions(prompt, scenario);
-    
-    setScore(calculatedScore);
-    setFeedback(generatedFeedback);
-    setSuggestions(generatedSuggestions);
-    setIsLoading(false);
-    
-    onScoreReceived(calculatedScore, generatedFeedback, generatedSuggestions);
-  };
 
-  const generateComparisonBasedFeedback = (score: number, comparison: any, scenario: Scenario): string => {
-    const similarityText = comparison.similarity > 70 ? "sehr nah am idealen Ansatz" :
-                          comparison.similarity > 50 ? "auf einem guten Weg" :
-                          comparison.similarity > 30 ? "grundlegend richtig, aber ausbaufähig" :
-                          "deutlich vom optimalen Ansatz entfernt";
+    try {
+      const { data, error } = await supabase.functions.invoke('evaluate-prompt', {
+        body: {
+          prompt,
+          scenarioTitle: scenario.title,
+          scenarioContext: scenario.context,
+          scenarioGoal: scenario.goal,
+          idealPrompt: scenario.idealPrompt,
+          evaluationCriteria: scenario.evaluation.criteria,
+          keyPhrases: scenario.evaluation.keyPhrases,
+          commonMistakes: scenario.evaluation.commonMistakes,
+        },
+      });
 
-    if (score >= 80) {
-      return `Ausgezeichnet! Ihr Prompt ist ${similarityText} und berücksichtigt die wichtigsten Anforderungen für "${scenario.title}". Die Struktur und Spezifität sind sehr gut.`;
-    } else if (score >= 60) {
-      return `Gute Basis! Ihr Prompt ist ${similarityText}. Mit einigen gezielten Ergänzungen können Sie noch näher an den idealen Prompt heranreichen.`;
-    } else if (score >= 40) {
-      return `Ihr Prompt ist ${similarityText}, aber es fehlen wichtige Elemente. Schauen Sie sich die Verbesserungsvorschläge an, um näher an den Golden Shot zu kommen.`;
-    } else {
-      return `Ihr Prompt ist ${similarityText}. Orientieren Sie sich stärker am Szenario-Kontext und den spezifischen Anforderungen für "${scenario.title}".`;
+      if (error) throw error;
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      const calculatedScore = data.score;
+      const generatedFeedback = data.feedback;
+      const generatedSuggestions = data.suggestions || [];
+
+      setScore(calculatedScore);
+      setFeedback(generatedFeedback);
+      setSuggestions(generatedSuggestions);
+      onScoreReceived(calculatedScore, generatedFeedback, generatedSuggestions);
+    } catch (err: any) {
+      console.error('Evaluation error:', err);
+      toast({
+        title: "Bewertung fehlgeschlagen",
+        description: err.message || "Bitte versuchen Sie es erneut.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
-
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-success";
@@ -122,17 +96,17 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
         {score === null ? (
           <div className="space-y-4">
             <p className="text-muted-foreground">
-              Bereit für KI-gestütztes Feedback zu Ihrem Prompt? Unser fortschrittliches Sprachmodell wird Ihren Prompt auf Klarheit, Spezifität und Effektivität analysieren.
+              Bereit für KI-gestütztes Feedback zu Ihrem Prompt? Google Gemini wird Ihren Prompt auf Klarheit, Spezifität und Effektivität analysieren.
             </p>
             <Button
-              onClick={simulateAIScoring}
+              onClick={evaluatePrompt}
               disabled={isLoading || prompt.trim().length < 20}
               className="bg-gradient-primary hover:bg-gradient-primary/90 shadow-button w-full"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  KI analysiert Ihren Prompt...
+                  Gemini analysiert Ihren Prompt...
                 </>
               ) : (
                 <>
@@ -144,7 +118,6 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
           </div>
         ) : (
           <div className="space-y-6 animate-fade-in">
-            {/* Score Display */}
             <div className="text-center">
               <div className="flex items-center justify-center gap-4 mb-4">
                 <div className="text-4xl font-bold">
@@ -157,7 +130,6 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
               <Progress value={score} className="w-full max-w-md mx-auto" />
             </div>
 
-            {/* Feedback */}
             <div>
               <h4 className="font-semibold mb-2 flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
@@ -168,7 +140,6 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
               </p>
             </div>
 
-            {/* Suggestions */}
             {suggestions.length > 0 && (
               <div>
                 <h4 className="font-semibold mb-3 flex items-center gap-2">
@@ -186,7 +157,6 @@ export function AIScoring({ prompt, scenario, onScoreReceived, hasRefinementLeft
               </div>
             )}
 
-            {/* Refinement Notice */}
             {hasRefinementLeft && score < 80 && (
               <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
                 <p className="text-sm text-primary">
