@@ -7,6 +7,7 @@ import { AppBackground } from "@/components/AppBackground"; // Make sure to impo
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import AdminLogin from "./pages/AdminLogin";
+import AdminResetPassword from "./pages/AdminResetPassword";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminScenarios from "./pages/AdminScenarios";
 import AdminCompetitionDetail from "./pages/AdminCompetitionDetail";
@@ -31,6 +32,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/reset-password" element={<AdminResetPassword />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/scenarios" element={<AdminScenarios />} />
             <Route path="/admin/competitions/:id" element={<AdminCompetitionDetail />} />
