@@ -6,27 +6,25 @@ interface HeroProps {
   hasExistingProgress?: boolean;
   onViewDashboard?: () => void;
 }
-export function Hero({
-  onStartQuiz,
-  hasExistingProgress,
-  onViewDashboard
-}: HeroProps) {
+export function Hero({ onStartQuiz, hasExistingProgress, onViewDashboard }: HeroProps) {
   const handleStartClick = () => {
     // For demo purposes, using a default name. In a real app, you'd collect this from user input
     onStartQuiz("Demo Benutzer");
   };
-  return <div className="min-h-screen bg-gradient-primary relative overflow-hidden">
+  return (
+    <div className="min-h-screen bg-gradient-primary relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.05%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] bg-gray-100"></div>
-      
+
       <div className="container mx-auto px-6 py-16 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           {/* Header */}
           <div className="mb-12 animate-fade-in">
-            <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-white via-white to-accent-foreground bg-clip-text text-slate-950 lg:text-7xl">
-              Prompt-Fähigkeiten Entwickeln
-            </h1>
-            <p className="text-xl lg:text-2xl text-foreground/80 mb-8 max-w-3xl mx-auto leading-relaxed">Meistern Sie die Kunst des KI-Promptings durch interaktive Szenarien. Trainieren Sie perfekte Prompts zu erstellen, die perfekte Ergebnisse liefern.</p>
+            <h1 className="text-5xl font-bold mb-6 text-white lg:text-7xl">Prompting Wettbewerb</h1>
+            <p className="text-xl lg:text-2xl text-foreground/80 mb-8 max-w-3xl mx-auto leading-relaxed">
+              Meistern Sie die Kunst des KI-Promptings durch interaktive Szenarien. Trainieren Sie perfekte Prompts zu
+              erstellen, die perfekte Ergebnisse liefern.
+            </p>
           </div>
 
           {/* Features */}
@@ -45,23 +43,27 @@ export function Hero({
 
             <Card className="bg-gradient-card border-0 shadow-card hover:shadow-glow transition-all duration-300 hover:scale-105">
               <div className="p-6 text-center bg-red-700">
-                <div className="w-12 h-12 bg-gradient-accent rounded-lg flex items-center justify-center mx-auto mb-4 animate-float" style={{
-                animationDelay: '0.2s'
-              }}>
+                <div
+                  className="w-12 h-12 bg-gradient-accent rounded-lg flex items-center justify-center mx-auto mb-4 animate-float"
+                  style={{
+                    animationDelay: "0.2s",
+                  }}
+                >
                   <Target className="h-6 w-6 text-accent-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2 text-zinc-300">Echte Szenarien</h3>
-                <p className="text-zinc-50">
-                  Üben Sie mit tatsächlichen Geschäftsfällen und realen Herausforderungen
-                </p>
+                <p className="text-zinc-50">Üben Sie mit tatsächlichen Geschäftsfällen und realen Herausforderungen</p>
               </div>
             </Card>
 
             <Card className="bg-gradient-card border-0 shadow-card hover:shadow-glow transition-all duration-300 hover:scale-105">
               <div className="p-6 text-center bg-red-700">
-                <div className="w-12 h-12 bg-gradient-accent rounded-lg flex items-center justify-center mx-auto mb-4 animate-float" style={{
-                animationDelay: '0.4s'
-              }}>
+                <div
+                  className="w-12 h-12 bg-gradient-accent rounded-lg flex items-center justify-center mx-auto mb-4 animate-float"
+                  style={{
+                    animationDelay: "0.4s",
+                  }}
+                >
                   <Zap className="h-6 w-6 text-accent-foreground" />
                 </div>
                 <h3 className="text-lg mb-2 font-semibold text-zinc-300">Sofortiges Feedback</h3>
@@ -73,15 +75,22 @@ export function Hero({
           </div>
 
           {/* CTA */}
-          <div className="animate-slide-up" style={{
-          animationDelay: '0.3s'
-        }}>
-            <Button onClick={handleStartClick} size="lg" className="bg-gradient-accent hover:bg-gradient-accent/90 text-accent-foreground font-semibold px-12 py-6 text-lg shadow-button hover:shadow-glow transition-all duration-300 hover:scale-105">
+          <div
+            className="animate-slide-up"
+            style={{
+              animationDelay: "0.3s",
+            }}
+          >
+            <Button
+              onClick={handleStartClick}
+              size="lg"
+              className="bg-gradient-accent hover:bg-gradient-accent/90 text-accent-foreground font-semibold px-12 py-6 text-lg shadow-button hover:shadow-glow transition-all duration-300 hover:scale-105"
+            >
               Starten Sie Ihre Reise
             </Button>
-            
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 }
