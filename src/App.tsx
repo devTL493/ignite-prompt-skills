@@ -3,7 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AppBackground } from "@/components/AppBackground"; // Make sure to import this
+import { AppBackground } from "@/components/AppBackground";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import AdminLogin from "./pages/AdminLogin";
@@ -31,6 +32,7 @@ const App = () => (
         <div className="relative z-10">
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/reset-password" element={<AdminResetPassword />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
