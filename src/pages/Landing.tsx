@@ -47,7 +47,7 @@ export default function Landing() {
         <div className="flex flex-col items-center justify-center min-h-[80vh] text-center pt-20">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-red-400 text-sm mb-8 animate-fade-in backdrop-blur-sm">
             <Trophy className="w-3 h-3" />
-            <span className="font-medium tracking-wide uppercase text-xs">Public Service AI Challenge</span>
+            <span className="font-medium tracking-wide uppercase text-xs">Bundesagentur für Arbeit KI-Challenge</span>
           </div>
 
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 animate-slide-up">
