@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Competition, DBScenario, Contestant, Submission } from "@/types";
-import { ArrowLeft, Plus, Trash2, Users, FileText, ExternalLink } from "lucide-react";
+import { Competition, DBScenario, Contestant, Submission, CompetitionFile } from "@/types";
+import { ArrowLeft, Plus, Trash2, Users, FileText, ExternalLink, Upload, Loader2, File } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import {
   Select,
@@ -31,10 +31,14 @@ export default function AdminCompetitionDetail() {
   const [contestants, setContestants] = useState<Contestant[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [selectedScenario, setSelectedScenario] = useState("");
+  const [competitionFiles, setCompetitionFiles] = useState<CompetitionFile[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (id) {
       fetchAll();
+      fetchFiles();
     }
   }, [id]);
 
@@ -62,6 +66,63 @@ export default function AdminCompetitionDetail() {
         .filter(Boolean) as (DBScenario & { sort_order: number })[];
       setAssignedScenarios(assigned);
     }
+  };
+
+  const fetchFiles = async () => {
+    const { data } = await supabase
+      .from("competition_files")
+      .select("*")
+      .eq("competition_id", id!)
+      .order("uploaded_at", { ascending: false });
+    if (data) setCompetitionFiles(data as unknown as CompetitionFile[]);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setIsUploading(true);
+
+    try {
+      for (const file of Array.from(files)) {
+        const filePath = `${id}/${Date.now()}-${file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from("competition-files")
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { error: dbError } = await supabase.from("competition_files").insert({
+          competition_id: id!,
+          file_name: file.name,
+          file_path: filePath,
+          file_type: file.type,
+          file_size: file.size,
+        } as any);
+
+        if (dbError) throw dbError;
+      }
+      toast({ title: "Dateien hochgeladen" });
+      fetchFiles();
+    } catch (err: any) {
+      toast({ title: "Upload fehlgeschlagen", description: err.message, variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const deleteFile = async (file: CompetitionFile) => {
+    if (!confirm(`"${file.file_name}" wirklich löschen?`)) return;
+    await supabase.storage.from("competition-files").remove([file.file_path]);
+    await supabase.from("competition_files").delete().eq("id", file.id);
+    fetchFiles();
+  };
+
+  const formatFileSize = (bytes: number | null) => {
+    if (!bytes) return "—";
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   const addScenario = async () => {
@@ -216,6 +277,62 @@ export default function AdminCompetitionDetail() {
             </div>
           </Card>
         </div>
+
+        {/* Files */}
+        <Card className="p-6 bg-gradient-card border-0 shadow-card mt-8">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <File className="h-5 w-5" /> Hilfsmaterialien ({competitionFiles.length})
+          </h2>
+          <div className="flex gap-2 mb-4">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,.docx,.doc,.xlsx,.xls,.pptx,.ppt"
+              multiple
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+            >
+              {isUploading ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Hochladen...</>
+              ) : (
+                <><Upload className="h-4 w-4 mr-2" />Dateien hochladen</>
+              )}
+            </Button>
+          </div>
+          {competitionFiles.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Dateiname</TableHead>
+                  <TableHead>Typ</TableHead>
+                  <TableHead>Größe</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {competitionFiles.map(f => (
+                  <TableRow key={f.id}>
+                    <TableCell className="font-medium">{f.file_name}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{f.file_type || "—"}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{formatFileSize(f.file_size)}</TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="icon" onClick={() => deleteFile(f)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <p className="text-sm text-muted-foreground">Noch keine Dateien hochgeladen.</p>
+          )}
+        </Card>
 
         {/* Submissions */}
         <Card className="p-6 bg-gradient-card border-0 shadow-card mt-8">

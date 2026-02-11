@@ -215,7 +215,15 @@ export default function AdminScenarios() {
                 </div>
                 <div>
                   <label className="text-sm font-medium">Kategorie</label>
-                  <Input value={form.category} onChange={f("category")} />
+                  <Select value={form.category} onValueChange={v => setForm(p => ({ ...p, category: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Kategorie wählen" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Recherche">Recherche</SelectItem>
+                      <SelectItem value="Vorbereitung">Vorbereitung</SelectItem>
+                      <SelectItem value="Analyse">Analyse</SelectItem>
+                      <SelectItem value="Entscheidung">Entscheidung</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Abteilung</label>
