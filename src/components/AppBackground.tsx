@@ -1,84 +1,99 @@
 import React, { useEffect, useState } from 'react';
 
-// Configuration for randomness
-const BLOB_COUNT = 8;
-const COLORS = [
+// Layer 1: The "Atmosphere" (Large, slow, blurry background clouds)
+const ATMOSPHERE_COUNT = 5;
+const ATMOSPHERE_COLORS = [
   'bg-red-600/10',
   'bg-orange-600/10', 
-  'bg-indigo-600/10',
-  'bg-rose-500/10',
-  'bg-slate-700/10' // Neutral to add depth
+  'bg-indigo-900/20', // Darker depth
 ];
 
-interface BlobData {
+// Layer 2: The "Fireflies" (Tiny, sharp, fast moving sparks/lights)
+const FIREFLY_COUNT = 50; // "Many many more"
+const FIREFLY_COLORS = [
+  'bg-orange-400', // Bright center
+  'bg-amber-200',  // Light glow
+  'bg-red-500',    // Ember
+  'bg-white',      // Hot spark
+];
+
+interface ParticleData {
   id: number;
   top: string;
   left: string;
   width: string;
   height: string;
   color: string;
+  animationName: string; // 'animate-blob' or 'animate-firefly'
   animationDelay: string;
   animationDuration: string;
+  blur: string;
+  opacity: string;
 }
 
 export const AppBackground = () => {
-  const [blobs, setBlobs] = useState<BlobData[]>([]);
+  const [particles, setParticles] = useState<ParticleData[]>([]);
 
   useEffect(() => {
-    // Generate random blobs only on client-side mount
-    const newBlobs = Array.from({ length: BLOB_COUNT }).map((_, i) => {
-      // Randomize position (0-100%)
-      const top = `${Math.floor(Math.random() * 100)}%`;
-      const left = `${Math.floor(Math.random() * 100)}%`;
-      
-      // Randomize size (large organic shapes)
-      const sizeBase = 20 + Math.random() * 30; // 20rem to 50rem
-      const width = `${sizeBase}rem`;
-      const height = `${sizeBase}rem`;
-      
-      // Randomize timing
-      // Using prime numbers for duration helps prevent loops from syncing up
-      const durationBase = 15 + Math.random() * 20; 
-      const animationDuration = `${durationBase}s`;
-      
-      // Negative delay ensures they are already "mid-animation" when page loads
-      const animationDelay = `-${Math.random() * 20}s`;
+    const newParticles: ParticleData[] = [];
 
-      return {
+    // 1. Generate Atmosphere (Background)
+    for (let i = 0; i < ATMOSPHERE_COUNT; i++) {
+      newParticles.push({
         id: i,
-        top,
-        left,
-        width,
-        height,
-        color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        animationDelay,
-        animationDuration,
-      };
-    });
-    setBlobs(newBlobs);
+        top: `${Math.random() * 100}%`,
+        left: `${Math.random() * 100}%`,
+        width: `${30 + Math.random() * 40}rem`, // Huge: 30-70rem
+        height: `${30 + Math.random() * 40}rem`,
+        color: ATMOSPHERE_COLORS[Math.floor(Math.random() * ATMOSPHERE_COLORS.length)],
+        animationName: 'animate-blob',
+        animationDelay: `-${Math.random() * 20}s`, // Start mid-cycle
+        animationDuration: `${25 + Math.random() * 20}s`, // Slow: 25-45s
+        blur: 'blur-[100px] md:blur-[150px]',
+        opacity: 'opacity-100' // Base opacity controlled by color/animation
+      });
+    }
+
+    // 2. Generate Fireflies (Foreground)
+    for (let i = 0; i < FIREFLY_COUNT; i++) {
+      newParticles.push({
+        id: i + ATMOSPHERE_COUNT, // Offset IDs
+        top: `${Math.random() * 120}%`, // Can start slightly below screen
+        left: `${Math.random() * 100}%`,
+        width: `${0.2 + Math.random() * 0.4}rem`, // Tiny: 0.2-0.6rem
+        height: `${0.2 + Math.random() * 0.4}rem`,
+        color: FIREFLY_COLORS[Math.floor(Math.random() * FIREFLY_COLORS.length)],
+        animationName: 'animate-firefly',
+        animationDelay: `-${Math.random() * 10}s`,
+        animationDuration: `${5 + Math.random() * 10}s`, // Faster: 5-15s
+        blur: 'blur-[1px] md:blur-[2px]', // Sharp but slightly glowing
+        opacity: 'opacity-80'
+      });
+    }
+
+    setParticles(newParticles);
   }, []);
 
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-slate-950">
-      {blobs.map((blob) => (
+      {particles.map((p) => (
         <div
-          key={blob.id}
-          className={`absolute rounded-full blur-[80px] md:blur-[120px] animate-blob mix-blend-screen ${blob.color}`}
+          key={p.id}
+          className={`absolute rounded-full mix-blend-screen ${p.color} ${p.animationName} ${p.blur} ${p.opacity}`}
           style={{
-            top: blob.top,
-            left: blob.left,
-            width: blob.width,
-            height: blob.height,
-            animationDelay: blob.animationDelay,
-            animationDuration: blob.animationDuration,
-            // Center the blob on its coordinate
+            top: p.top,
+            left: p.left,
+            width: p.width,
+            height: p.height,
+            animationDelay: p.animationDelay,
+            animationDuration: p.animationDuration,
             transform: 'translate(-50%, -50%)', 
           }}
         />
       ))}
       
-      {/* Subtle texture overlay to reduce banding artifacts */}
-      <div className="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')]"></div>
+      {/* Texture Overlay remains for film-grain look */}
+      <div className="absolute inset-0 opacity-[0.15] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')]"></div>
     </div>
   );
 };
