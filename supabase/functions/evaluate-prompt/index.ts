@@ -14,6 +14,7 @@ interface EvaluationRequest {
   evaluationCriteria: string[];
   keyPhrases: string[];
   commonMistakes: string[];
+  department?: string;
 }
 
 Deno.serve(async (req) => {
@@ -31,7 +32,7 @@ Deno.serve(async (req) => {
     }
 
     const body: EvaluationRequest = await req.json();
-    const { prompt, scenarioTitle, scenarioContext, scenarioGoal, idealPrompt, evaluationCriteria, keyPhrases, commonMistakes } = body;
+    const { prompt, scenarioTitle, scenarioContext, scenarioGoal, idealPrompt, evaluationCriteria, keyPhrases, commonMistakes, department } = body;
 
     if (!prompt || prompt.trim().length < 20) {
       return new Response(
@@ -40,13 +41,20 @@ Deno.serve(async (req) => {
       );
     }
 
+    const departmentGuidance: Record<string, string> = {
+      "Führungsaufgabe": "Bewerte besonders: Klarheit für Teamkommunikation, Delegationsfähigkeit, strategische Ausrichtung",
+      "Fachlich - Leistung": "Bewerte besonders: Technische Genauigkeit, Messbare KPIs, Optimierungspotentiale",
+      "Fachlich - MuI": "Bewerte besonders: Change Management Aspekte, Integrationsfähigkeit, Nachhaltigkeitsgedanken",
+    };
+    const deptHint = department ? `\nABTEILUNG: ${department}\n${departmentGuidance[department] || ""}\n` : "";
+
     const systemPrompt = `Du bist ein Experte für Behördenkommunikation und KI-Prompting im deutschen öffentlichen Dienst. 
 Du bewertest Prompts, die Behördenmitarbeiter schreiben, um KI-Systeme effektiv zu nutzen.
 
 SZENARIO: "${scenarioTitle}"
 KONTEXT: ${scenarioContext}
 ZIEL: ${scenarioGoal}
-
+${deptHint}
 IDEALER PROMPT (Golden Shot):
 ${idealPrompt}
 
@@ -68,7 +76,7 @@ Bewerte den folgenden Prompt des Nutzers auf einer Skala von 0-100. Antworte NUR
 
 Sei streng aber fair. Ein Score von 80+ bedeutet exzellent. Vergleiche immer mit dem idealen Prompt.`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
     const geminiResponse = await fetch(geminiUrl, {
       method: 'POST',
