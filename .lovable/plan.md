@@ -1,123 +1,73 @@
 
 
-# PromptCUP Competition Platform
+# Admin Account Creation and Password Recovery
 
 ## Overview
 
-Transform the current single-user prompt training tool into a multi-event competition platform where admins create events with scenarios, contestants sign up with just a name (and optional email), and all submissions are scored and stored in a database leaderboard.
+Create a Supabase Edge Function to securely provision admin accounts (sign up + assign admin role), and add a "Forgot Password" flow to the Admin Login page using Supabase's built-in password recovery.
 
-## Database Schema
+## Step 1: Edge Function -- `create-admin`
 
-The following tables will be created in Supabase:
+Create a new Edge Function `supabase/functions/create-admin/index.ts` that:
 
-```text
-+------------------+       +------------------+       +-------------------+
-| competitions     |       | competition_     |       | scenarios         |
-|------------------|       | scenarios        |       |-------------------|
-| id (uuid, PK)   |<------| (junction)       |------>| id (uuid, PK)     |
-| name             |       | competition_id   |       | title             |
-| description      |       | scenario_id      |       | description       |
-| location         |       | sort_order       |       | context           |
-| event_date       |       +------------------+       | goal              |
-| status           |                                  | difficulty        |
-| created_by (uuid)|       +------------------+       | category          |
-| created_at       |       | contestants      |       | department        |
-+------------------+       |------------------|       | ideal_prompt      |
-                           | id (uuid, PK)    |       | hints (jsonb)     |
-                           | competition_id   |       | evaluation (jsonb)|
-                           | full_name        |       | created_by (uuid) |
-                           | email (nullable) |       | created_at        |
-                           | access_code      |       +-------------------+
-                           | created_at       |
-                           +------------------+
-                                    |
-                           +------------------+
-                           | submissions      |
-                           |------------------|
-                           | id (uuid, PK)    |
-                           | contestant_id    |
-                           | scenario_id      |
-                           | competition_id   |
-                           | user_prompt      |
-                           | refined_prompt   |
-                           | initial_score    |
-                           | final_score      |
-                           | ai_feedback      |
-                           | ai_suggestions   |
-                           | submitted_at     |
-                           +------------------+
-```
+1. Accepts `{ email, password }` in the request body
+2. Uses the Supabase Admin API (service role key) to create a user via `supabase.auth.admin.createUser()`
+3. Inserts a row into `user_roles` with `role = 'admin'`
+4. Returns the created user ID
 
-### Key design decisions:
-- **No Supabase Auth for contestants** -- they sign up per event with just a name and optional email. An auto-generated `access_code` lets them resume their session.
-- **Supabase Auth for admins only** -- admins log in with email/password to manage competitions and scenarios.
-- **Scenarios are reusable** -- a junction table links scenarios to competitions, so the same scenario can appear in multiple events.
-- **Admin role** stored in a `user_roles` table (per security best practices).
+This function will be invoked once to bootstrap the first admin. It will be protected by checking a shared secret or can be called directly via `supabase--curl_edge_functions` during setup.
 
-## Pages and Routes
+## Step 2: Add Password Reset to Admin Login
 
-| Route | Purpose |
-|---|---|
-| `/` | Landing page -- choose "Join Competition" or "Admin Login" |
-| `/join/:competitionId` | Contestant sign-up (name + optional email) |
-| `/compete/:competitionId` | Quiz interface for contestants (existing QuizInterface, adapted) |
-| `/leaderboard/:competitionId` | Public leaderboard for a competition |
-| `/admin/login` | Admin email/password login |
-| `/admin` | Admin dashboard -- list competitions |
-| `/admin/competitions/:id` | Manage a competition (scenarios, contestants, results) |
-| `/admin/scenarios` | Scenario library (CRUD) |
+Update `src/pages/AdminLogin.tsx` to add a "Passwort vergessen?" link that:
 
-## Implementation Steps
+1. Shows an email input field
+2. Calls `supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/admin/reset-password' })`
+3. Displays a success message
 
-### Step 1: Database migration
-- Create all tables: `competitions`, `scenarios`, `competition_scenarios`, `contestants`, `submissions`, `user_roles`
-- Enable RLS on all tables
-- Create a `has_role` security definer function
-- RLS policies:
-  - `scenarios`, `competitions`, `competition_scenarios`: public SELECT; admin-only INSERT/UPDATE/DELETE
-  - `contestants`: public INSERT (sign-up); contestants can SELECT their own row; admins can SELECT all
-  - `submissions`: contestants can INSERT/SELECT their own; admins can SELECT all
-  - `user_roles`: only the function reads this table (no direct SELECT)
+## Step 3: Password Reset Page
 
-### Step 2: Seed default scenarios
-- Migrate the 5 existing `governmentScenarios` from the TypeScript file into the `scenarios` table so they can be reused across competitions.
+Create `src/pages/AdminResetPassword.tsx`:
 
-### Step 3: Admin authentication
-- Create `/admin/login` page with email/password sign-in using Supabase Auth
-- Protected route wrapper that checks `has_role(uid, 'admin')`
-- No profile table needed -- admin identity comes from `auth.users` + `user_roles`
+1. Reads the recovery token from the URL (Supabase redirects with a hash fragment)
+2. Shows a "New Password" form
+3. Calls `supabase.auth.updateUser({ password })` to set the new password
+4. Redirects to `/admin/login` on success
 
-### Step 4: Admin panel pages
-- **Competition management**: Create/edit competitions (name, description, location, date, status: draft/active/completed). Assign scenarios from the library. View contestants and their scores.
-- **Scenario library**: Create/edit/delete scenarios with all fields (title, description, context, goal, difficulty, category, hints, evaluation criteria, etc.)
-- **Results overview**: Table of all submissions per competition, sortable by score, exportable as CSV.
+## Step 4: Route Registration
 
-### Step 5: Contestant flow
-- `/join/:competitionId` -- simple form: full name + optional email. On submit, creates a `contestants` row and generates a short `access_code`. The code is shown to the contestant and stored in localStorage for session persistence.
-- `/compete/:competitionId` -- adapted `QuizInterface` that loads scenarios from DB (via `competition_scenarios`), saves each submission to `submissions` table, and calls the existing `evaluate-prompt` edge function.
-- Resume session: if a contestant returns, they can enter their access code to continue.
+Add the new `/admin/reset-password` route to `src/App.tsx`.
 
-### Step 6: Leaderboard
-- `/leaderboard/:competitionId` -- public page showing ranked contestants by average score across all scenarios, with per-scenario breakdown.
+## Step 5: Configure Supabase Auth Redirect
 
-### Step 7: Update Edge Function
-- Modify `evaluate-prompt` to optionally accept a `submission_id` and persist the score back to the `submissions` table (or keep it client-driven -- the frontend writes to `submissions` after receiving the score).
+Ensure the Supabase project's Site URL and Redirect URLs include the preview domain so password reset emails link back correctly.
+
+## Step 6: Bootstrap the Admin
+
+After deploying the edge function, call it once to create the admin account with the desired email and password.
+
+---
 
 ## Technical Details
 
-### Contestant session management
-- No Supabase Auth for contestants. After sign-up, the `contestant` row ID and `access_code` are stored in localStorage.
-- Supabase RLS for `contestants` and `submissions` uses a permissive approach: public INSERT for sign-up, and anon SELECT filtered by `access_code` or `contestant_id` passed as a request parameter.
-- Since contestants are anonymous (no auth), submissions INSERT will use a permissive policy, but the `contestant_id` foreign key ensures data integrity.
+### Edge Function (`create-admin`)
+- Uses `SUPABASE_SERVICE_ROLE_KEY` (already configured as a secret)
+- Creates user with `email_confirm: true` so no verification email is needed
+- Inserts into `user_roles` table in a single transaction
+- Should be called once and can optionally be deleted afterward
 
-### Admin auth flow
-- Standard Supabase email/password auth
-- `user_roles` table with `has_role()` security definer function
-- You will need to manually insert the first admin user via SQL Editor after creating an account
+### Password Reset Flow
+- Supabase handles the email sending automatically
+- The recovery link contains a token in the URL hash
+- `onAuthStateChange` with event `PASSWORD_RECOVERY` triggers the reset form
+- `supabase.auth.updateUser({ password })` completes the reset
 
-### Files to create/modify
-- **New files**: ~10 new component/page files for admin panel, contestant flow, leaderboard
-- **Modified files**: `App.tsx` (routes), `types/index.ts` (updated types), `useProgress.ts` (replace localStorage with Supabase calls)
-- **Database**: 1 migration with all tables, RLS policies, and helper functions
-- **Edge function**: Minor update to `evaluate-prompt` (no breaking changes)
+### Files to create
+- `supabase/functions/create-admin/index.ts`
+- `src/pages/AdminResetPassword.tsx`
+
+### Files to modify
+- `src/pages/AdminLogin.tsx` -- add "Forgot Password" toggle
+- `src/App.tsx` -- add `/admin/reset-password` route
+- `supabase/config.toml` -- register new edge function
 
