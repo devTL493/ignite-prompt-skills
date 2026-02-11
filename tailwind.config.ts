@@ -125,19 +125,23 @@ export default {
 						opacity: '1'
 					}
 				},
-				// Added blob animation keyframes
+				// Updated 'blob' with opacity for breathing effect
 				blob: {
 					"0%": {
 						transform: "translate(0px, 0px) scale(1)",
+						opacity: "0.2" // Start subtle
 					},
 					"33%": {
-						transform: "translate(30px, -50px) scale(1.1)",
+						transform: "translate(30px, -50px) scale(1.2)",
+						opacity: "0.5" // Breathe in (scale up + opacity up)
 					},
 					"66%": {
-						transform: "translate(-20px, 20px) scale(0.9)",
+						transform: "translate(-20px, 20px) scale(0.8)",
+						opacity: "0.2" // Breathe out (scale down + opacity down)
 					},
 					"100%": {
 						transform: "translate(0px, 0px) scale(1)",
+						opacity: "0.2"
 					},
 				},
 			},
@@ -148,8 +152,7 @@ export default {
 				float: 'float 3s ease-in-out infinite',
 				'slide-up': 'slide-up 0.5s ease-out',
 				'fade-in': 'fade-in 0.6s ease-out',
-				// Added blob animation utility
-				blob: "blob 7s infinite",
+				blob: "blob 10s infinite", // Slowed down to 10s for more relaxed breathing
 			},
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
