@@ -1,145 +1,153 @@
 
-# LLM-Powered Ideal Prompt Generation with Gemini 3.0 Flash Preview
+
+# Competition File Repository, Kategorie Dropdown, and Direct Gemini API
 
 ## Overview
 
-This plan implements:
-1. **Department Dropdown**: Replace free-text "Abteilung" with a fixed dropdown (Führungsaufgabe, Fachlich - Leistung, Fachlich - MuI)
-2. **Ideal Prompt Generation**: Create a new edge function to auto-generate ideal prompts using Gemini 3.0 Flash Preview
-3. **Enhanced Scoring**: Update the evaluate-prompt function to accept and use the department category for context-aware scoring
-4. **Model Update**: Switch both edge functions to use `google/gemini-3-flash-preview` for better performance and cost efficiency
+1. Switch `generate-ideal-prompt` from Lovable AI Gateway to direct Gemini API (using `GEMINI_API_KEY`)
+2. Add a `competition_files` table and Supabase Storage bucket for uploading PDFs/images to competitions
+3. Admin UI for managing competition files
+4. Contestant "Hilfsmaterialien" button to view/download files during prompting
+5. Kategorie dropdown with fixed values: Recherche, Vorbereitung, Analyse, Entscheidung
+6. Enhanced `evaluate-prompt` that considers Kontext, Ziel, Abteilung, Kategorie, Idealer Prompt, and file metadata
 
 ---
 
-## Change 1: Update `evaluate-prompt` Edge Function
+## Database Migration
+
+### Storage Bucket
+
+Create a public `competition-files` bucket for storing uploaded documents.
+
+### New Table: `competition_files`
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid | PK, default gen_random_uuid() |
+| competition_id | uuid | NOT NULL, FK to competitions |
+| file_name | text | NOT NULL, original filename |
+| file_path | text | NOT NULL, storage path |
+| file_type | text | MIME type |
+| file_size | integer | bytes |
+| uploaded_at | timestamptz | default now() |
+| uploaded_by | uuid | nullable |
+
+### RLS Policies
+- SELECT: anyone (contestants need file access)
+- INSERT/UPDATE/DELETE: admins only
+
+### Storage RLS
+- SELECT on objects in `competition-files`: public
+- INSERT/DELETE: authenticated users (admins)
+
+---
+
+## Change 1: Rewrite `generate-ideal-prompt` to Direct Gemini API
+
+**File**: `supabase/functions/generate-ideal-prompt/index.ts`
+
+- Replace `LOVABLE_API_KEY` with `GEMINI_API_KEY`
+- Replace Lovable AI Gateway URL with direct Gemini API: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`
+- Convert from OpenAI chat format to Gemini native format (contents array with role/parts)
+- Keep the same system prompt and department guidance logic
+
+---
+
+## Change 2: Kategorie Dropdown in AdminScenarios
+
+**File**: `src/pages/AdminScenarios.tsx` (line 217-218)
+
+Replace the free-text `<Input>` for "Kategorie" with a `<Select>` dropdown:
+
+| Value | Label |
+|---|---|
+| Recherche | Recherche |
+| Vorbereitung | Vorbereitung |
+| Analyse | Analyse |
+| Entscheidung | Entscheidung |
+
+---
+
+## Change 3: File Upload UI in AdminCompetitionDetail
+
+**File**: `src/pages/AdminCompetitionDetail.tsx`
+
+Add a new "Dateien" card section:
+- File input accepting PDF, JPG, PNG, DOCX
+- Upload handler: uploads to `competition-files/{competition_id}/{filename}` in storage, then inserts metadata into `competition_files` table
+- List of uploaded files with name, type, size, and a delete button
+- Fetch files from `competition_files` table on load
+- Add `CompetitionFile` interface to types
+
+---
+
+## Change 4: Contestant Help Button
+
+**File**: `src/pages/CompeteInterface.tsx`
+
+Add a "Hilfsmaterialien" button in the scenario area:
+- Fetches files from `competition_files` where `competition_id` matches
+- Opens a dialog listing all files with download links (public Supabase Storage URLs)
+- Uses a FileText icon and clearly labeled button
+
+---
+
+## Change 5: Enhanced `evaluate-prompt`
 
 **File**: `supabase/functions/evaluate-prompt/index.ts`
 
-**Changes**:
-- Add `department` to the `EvaluationRequest` interface
-- Update the Gemini API URL to use `gemini-3-flash-preview` instead of `gemini-2.0-flash`
-- Include the department in the system prompt so scoring is context-aware:
-  - For Führungsaufgabe: emphasize leadership tone, delegation, team communication
-  - For Fachlich - Leistung: emphasize technical accuracy, performance metrics, optimization
-  - For Fachlich - MuI: emphasize sustainability, change management, integration aspects
-- The department will inform how strictly certain criteria are weighted
+Add to the request interface:
+- `category?: string`
+- `competitionFiles?: { file_name: string; file_type: string }[]`
 
-**Key Addition to System Prompt**:
+Update the system prompt to include:
+- `KATEGORIE: ${category}` with category-specific scoring guidance:
+  - Recherche: source depth, systematic information gathering
+  - Vorbereitung: structured planning, completeness, prioritization
+  - Analyse: analytical depth, data interpretation, conclusions
+  - Entscheidung: decision logic, weighing alternatives, risk assessment
+- `VERFUGBARE HILFSMATERIALIEN: ${fileNames}` so the LLM knows what reference materials were available and can assess whether the prompt appropriately leverages them
+
+---
+
+## Change 6: Pass New Fields from Frontend
+
+**Files**: `src/pages/CompeteInterface.tsx`, `src/components/AIScoring.tsx`
+
+- Pass `department`, `category`, and `competitionFiles` metadata to `evaluate-prompt`
+- Fetch competition files once when CompeteInterface loads and include their metadata in the evaluation call
+
+---
+
+## Change 7: Update Types
+
+**File**: `src/types/index.ts`
+
+Add `CompetitionFile` interface:
+```text
+CompetitionFile {
+  id: string
+  competition_id: string
+  file_name: string
+  file_path: string
+  file_type: string | null
+  file_size: number | null
+  uploaded_at: string
+  uploaded_by: string | null
+}
 ```
-ABTEILUNG/KONTEXT: ${department}
-```
-This helps the AI understand whether it's evaluating a leadership scenario, technical performance scenario, or technical change management scenario.
-
----
-
-## Change 2: Create `generate-ideal-prompt` Edge Function
-
-**File**: `supabase/functions/generate-ideal-prompt/index.ts` (NEW)
-
-**Function**:
-- Accepts: `{ context, goal, department, title, description }`
-- Uses `google/gemini-3-flash-preview` to generate an ideal prompt
-- Returns: `{ idealPrompt: string }`
-- CORS-enabled for web requests
-- Sets `verify_jwt = false` in config.toml
-
-**System Prompt** will instruct the model to:
-- Write a clear, specific, professional prompt that achieves the stated goal within the given context
-- Tailor the style based on the department (leadership-focused, technically-detailed, or change-management-focused)
-- Include concrete keywords and structural guidance if applicable
-- Be concise but comprehensive (300-500 words typical)
-
-**Error Handling**:
-- Validate context and goal are not empty
-- Return user-friendly error messages in German
-- Handle API timeouts and rate limits gracefully
-
----
-
-## Change 3: Update `src/pages/AdminScenarios.tsx`
-
-**Changes**:
-1. **Department Dropdown** (line 192-195):
-   - Replace `<Input value={form.department} onChange={f("department")} />` with a `<Select>` dropdown
-   - Options: "Führungsaufgabe", "Fachlich - Leistung", "Fachlich - MuI"
-
-2. **Generate Button** (before the "Idealer Prompt" textarea):
-   - Add a button next to the "Idealer Prompt" label with a sparkle/magic icon
-   - On click: calls `generate-ideal-prompt` edge function with current form values
-   - Shows loading spinner while generating
-   - Disabled if context or goal are empty
-   - On success: populates the `ideal_prompt` textarea
-   - On error: shows a toast notification
-
-3. **State Management**:
-   - Add `isGeneratingPrompt: boolean` state to track loading state
-   - Add handler function `generateIdealPrompt()` that calls the edge function
-
----
-
-## Change 4: Update `src/components/AIScoring.tsx`
-
-**Changes**:
-- Add `department: string` to the function invocation body (line 28-38)
-- Pass `scenario.department` when calling evaluate-prompt
-- This ensures the LLM scores with full context of the department category
-
----
-
-## Change 5: Update `supabase/config.toml`
-
-**Changes**:
-- Update the Gemini model reference in evaluate-prompt to use `gemini-3-flash-preview` (if exposed in environment)
-- Add a new function entry:
-  ```toml
-  [functions.generate-ideal-prompt]
-  verify_jwt = false
-  ```
-
----
-
-## Technical Details
-
-### API Models
-Both edge functions will use `google/gemini-3-flash-preview` which offers:
-- Faster response times than Gemini 2.0 Flash
-- Better structured output (JSON responses)
-- Lower latency suitable for interactive UI workflows
-- More efficient token usage for cost
-
-### Department-Aware Scoring
-The evaluate-prompt system prompt will now include:
-```
-ABTEILUNG: ${department}
-```
-And add department-specific guidance:
-- **Führungsaufgabe**: "Bewerte besonders: Klarheit für Teamkommunikation, Delegationsfähigkeit, strategische Ausrichtung"
-- **Fachlich - Leistung**: "Bewerte besonders: Technische Genauigkeit, Messbare KPIs, Optimierungspotentiale"
-- **Fachlich - MuI**: "Bewerte besonders: Change Management Aspekte, Integrationsfähigkeit, Nachhaltigkeitsgedanken"
-
-### Frontend Error Handling
-- Toast notifications for generation failures
-- User-friendly German error messages
-- Graceful fallback if API is unavailable
-
-### Files to Create
-- `supabase/functions/generate-ideal-prompt/index.ts`
-
-### Files to Modify
-- `supabase/functions/evaluate-prompt/index.ts` (add department, update model, enhance system prompt)
-- `src/pages/AdminScenarios.tsx` (department dropdown + generate button)
-- `src/components/AIScoring.tsx` (pass department to edge function)
-- `supabase/config.toml` (register new function)
 
 ---
 
 ## Implementation Sequence
 
-1. Update `supabase/config.toml` to register the new function
-2. Create `supabase/functions/generate-ideal-prompt/index.ts`
-3. Update `supabase/functions/evaluate-prompt/index.ts` to accept department and use new model
-4. Update `src/pages/AdminScenarios.tsx` with dropdown and generate button
-5. Update `src/components/AIScoring.tsx` to pass department
-6. Deploy edge functions
-7. Test the workflow end-to-end
+1. Database migration (storage bucket + competition_files table + RLS)
+2. Rewrite `generate-ideal-prompt` to use GEMINI_API_KEY directly
+3. Update `evaluate-prompt` with category + file awareness
+4. Update types
+5. Update `AdminScenarios.tsx` with Kategorie dropdown
+6. Update `AdminCompetitionDetail.tsx` with file upload UI
+7. Update `CompeteInterface.tsx` with help button + enhanced scoring call
+8. Update `AIScoring.tsx` to pass category
+9. Deploy edge functions
 
