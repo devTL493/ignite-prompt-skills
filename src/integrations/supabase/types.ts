@@ -14,16 +14,255 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      competition_scenarios: {
+        Row: {
+          competition_id: string
+          id: string
+          scenario_id: string
+          sort_order: number
+        }
+        Insert: {
+          competition_id: string
+          id?: string
+          scenario_id: string
+          sort_order?: number
+        }
+        Update: {
+          competition_id?: string
+          id?: string
+          scenario_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competition_scenarios_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competition_scenarios_scenario_id_fkey"
+            columns: ["scenario_id"]
+            isOneToOne: false
+            referencedRelation: "scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          event_date: string | null
+          id: string
+          location: string | null
+          name: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_date?: string | null
+          id?: string
+          location?: string | null
+          name: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_date?: string | null
+          id?: string
+          location?: string | null
+          name?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      contestants: {
+        Row: {
+          access_code: string
+          competition_id: string
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+        }
+        Insert: {
+          access_code?: string
+          competition_id: string
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+        }
+        Update: {
+          access_code?: string
+          competition_id?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contestants_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scenarios: {
+        Row: {
+          category: string
+          context: string
+          created_at: string
+          created_by: string | null
+          department: string
+          description: string
+          difficulty: string
+          evaluation: Json
+          goal: string
+          hints: Json
+          id: string
+          ideal_prompt: string
+          title: string
+        }
+        Insert: {
+          category?: string
+          context?: string
+          created_at?: string
+          created_by?: string | null
+          department?: string
+          description?: string
+          difficulty?: string
+          evaluation?: Json
+          goal?: string
+          hints?: Json
+          id?: string
+          ideal_prompt?: string
+          title: string
+        }
+        Update: {
+          category?: string
+          context?: string
+          created_at?: string
+          created_by?: string | null
+          department?: string
+          description?: string
+          difficulty?: string
+          evaluation?: Json
+          goal?: string
+          hints?: Json
+          id?: string
+          ideal_prompt?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      submissions: {
+        Row: {
+          ai_feedback: string | null
+          ai_suggestions: Json | null
+          competition_id: string
+          contestant_id: string
+          final_score: number | null
+          id: string
+          initial_score: number | null
+          refined_prompt: string | null
+          scenario_id: string
+          submitted_at: string
+          user_prompt: string
+        }
+        Insert: {
+          ai_feedback?: string | null
+          ai_suggestions?: Json | null
+          competition_id: string
+          contestant_id: string
+          final_score?: number | null
+          id?: string
+          initial_score?: number | null
+          refined_prompt?: string | null
+          scenario_id: string
+          submitted_at?: string
+          user_prompt?: string
+        }
+        Update: {
+          ai_feedback?: string | null
+          ai_suggestions?: Json | null
+          competition_id?: string
+          contestant_id?: string
+          final_score?: number | null
+          id?: string
+          initial_score?: number | null
+          refined_prompt?: string | null
+          scenario_id?: string
+          submitted_at?: string
+          user_prompt?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submissions_contestant_id_fkey"
+            columns: ["contestant_id"]
+            isOneToOne: false
+            referencedRelation: "contestants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submissions_scenario_id_fkey"
+            columns: ["scenario_id"]
+            isOneToOne: false
+            referencedRelation: "scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +389,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin"],
+    },
   },
 } as const
